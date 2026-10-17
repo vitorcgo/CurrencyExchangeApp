@@ -3,6 +3,8 @@ import Header from './components/Header.jsx'
 import Converter from './components/Converter.jsx'
 import ConvertedHero from './components/ConvertedHero.jsx'
 import RateChart from './components/RateChart.jsx'
+import RatesTable from './components/RatesTable.jsx'
+import StatsGrid from './components/StatsGrid.jsx'
 import { useCurrencies } from './hooks/useCurrencies.js'
 import { useLocalStorage } from './hooks/useLocalStorage.js'
 import { useTicker } from './hooks/useTicker.js'
@@ -146,7 +148,7 @@ export default function App() {
             />
           </div>
 
-          <div className="lg:col-span-7 min-w-0">
+          <div className="lg:col-span-7 min-w-0 space-y-6">
             <RateChart
               points={series.points}
               loading={series.loading}
@@ -155,9 +157,24 @@ export default function App() {
               timeframe={timeframe}
               onTimeframeChange={setTimeframe}
             />
+            <StatsGrid points={series.points} from={from} to={to} />
           </div>
         </div>
+
+        <RatesTable
+          points={series.points}
+          loading={series.loading}
+          from={from}
+          to={to}
+          timeframe={timeframe}
+        />
       </main>
+
+      <footer className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-2">
+        <p className="text-center text-xs text-slate-500">
+          Projeto didático de React com Vite. Dados: Frankfurter API (taxas de referência do BCE).
+        </p>
+      </footer>
     </div>
   )
 }
