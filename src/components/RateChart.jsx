@@ -19,7 +19,7 @@ const PAD_RIGHT = 14
 // Rótulos curtos para o eixo Y: valores muito pequenos viram
 // notação científica para não invadir a área do gráfico
 function formatAxisValue(value) {
-  if (value == null || Number.isNaN(value)) return '-'
+  if (value == null || !Number.isFinite(value)) return '-'
   const abs = Math.abs(value)
   if (abs !== 0 && abs < 0.01) {
     return value.toExponential(2).replace('.', ',')
@@ -38,12 +38,20 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
   // antes da pintura, para conseguir prendê-lo nas bordas
   useLayoutEffect(() => {
     const element = tooltipRef.current
-    if (!element) return
-    const measured = element.offsetWidth
-    if (measured) {
-      setTooltipWidth((current) => (current === measured ? current : measured))
+    if (!element) return undefined
+
+    const measure = () => {
+      const measured = element.offsetWidth
+      if (measured) {
+        setTooltipWidth((current) => (current === measured ? current : measured))
+      }
     }
-  })
+
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [points, hoverIndex, width])
 
   // Reinicia o destaque quando a série muda (troca de par ou período),
   // senão o índice antigo pode apontar para fora da nova lista
@@ -54,7 +62,6 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
   // Ajustes de responsividade a partir da largura medida
   const compact = width > 0 && width < 640
   const height = compact ? HEIGHT_MOBILE : HEIGHT_DESKTOP
-  const padLeft = compact ? 58 : 64
 
   const model = useMemo(() => {
     if (!points.length) return null
@@ -77,6 +84,20 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
       sma50Last: [...sma50].reverse().find((value) => value != null) ?? null,
     }
   }, [points])
+
+  // Reserva espaço para o maior rótulo do eixo Y. Sem isso, moedas com
+  // cotações altas (KRW, IDR, HUF) têm o texto cortado na borda esquerda.
+  const axisLabels = useMemo(() => {
+    if (!model) return []
+    return Array.from({ length: 5 }, (_, index) =>
+      formatAxisValue(model.max - (index / 4) * (model.max - model.min)),
+    )
+  }, [model])
+
+  const padLeft = Math.max(
+    compact ? 58 : 64,
+    Math.round(Math.max(...axisLabels.map((label) => label.length), 4) * (compact ? 6.1 : 6.7)) + 16,
+  )
 
   const geometry = useMemo(() => {
     if (!model || !points.length || width === 0) return null
@@ -178,9 +199,10 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
               key={item.id}
               type="button"
               onClick={() => onTimeframeChange(item.id)}
-              className={`shrink-0 px-2.5 py-1 rounded-lg transition border ${
+              aria-pressed={timeframe === item.id}
+              className={`shrink-0 px-2.5 py-1 rounded-lg transition-colors border ${
                 timeframe === item.id
-                  ? 'bg-green-500/20 text-green-300 border-green-500/30 shadow-sm'
+                  ? 'bg-green-500/20 text-green-300 border-green-500/30'
                   : 'border-transparent hover:text-white'
               }`}
             >
@@ -194,7 +216,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
       <div className="pt-4">
         <div ref={containerRef} className="relative w-full" style={{ height }}>
           {!geometry ? (
-            <div className="w-full h-full rounded-2xl bg-[#0a0a0a]/50 border border-zinc-800/50 flex items-center justify-center">
+            <div className="w-full h-full rounded-2xl bg-panel border border-zinc-800/50 flex items-center justify-center">
               <span className="text-xs font-mono text-zinc-500 animate-pulse">
                 {loading ? 'carregando série histórica...' : 'sem dados para exibir'}
               </span>
@@ -204,7 +226,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
               {activePoint && (
                 <div
                   ref={tooltipRef}
-                  className="absolute top-2 z-20 pointer-events-none -translate-x-1/2 bg-[#111111]/95 border border-green-500/40 rounded-xl px-3 py-1.5 shadow-xl shadow-green-950/60 backdrop-blur-md flex items-center gap-2 sm:gap-3"
+                  className="absolute top-2 z-20 pointer-events-none -translate-x-1/2 bg-panel border border-zinc-700 rounded-xl px-3 py-1.5 shadow-lg flex items-center gap-2 sm:gap-3"
                   style={{ left: tooltipX }}
                 >
                   <span className="text-[11px] font-mono text-zinc-400 whitespace-nowrap">
@@ -213,7 +235,6 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                       <span className="text-green-400"> · atual</span>
                     )}
                   </span>
-                  <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-green-400" />
                   <span className="text-xs font-mono font-bold text-white whitespace-nowrap">
                     {formatRate(activePoint.rate)} {to}
                   </span>
@@ -235,6 +256,8 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                 width={width}
                 height={height}
                 className="block select-none"
+                role="img"
+                aria-label={`Histórico de ${from} para ${to} no período ${timeframe}`}
                 onMouseMove={handlePointerMove}
                 onMouseLeave={() => setHoverIndex(null)}
               >
@@ -244,13 +267,6 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                     <stop offset="45%" stopColor="#16a34a" stopOpacity="0.18" />
                     <stop offset="100%" stopColor="#050505" stopOpacity="0" />
                   </linearGradient>
-                  <filter id="chart-line-glow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feMerge>
-                      <feMergeNode in="blur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
                 </defs>
 
                 <g transform={`translate(${padLeft}, ${PAD_TOP})`}>
@@ -273,7 +289,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                         fontSize={compact ? 10 : 11}
                         className="fill-zinc-500 font-mono"
                       >
-                        {formatAxisValue(tick)}
+                        {axisLabels[index] ?? formatAxisValue(tick)}
                       </text>
                     </g>
                   ))}
@@ -331,7 +347,6 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    filter="url(#chart-line-glow)"
                   />
 
                   {/* Cruzamento e ponto ativos */}

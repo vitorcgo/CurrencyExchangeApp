@@ -7,6 +7,7 @@ import {
   formatNumber,
   formatRate,
 } from '../utils/format.js'
+import { sanitizeAmountInput } from '../utils/validation.js'
 
 const PRESETS = [100, 500, 1000, 5000]
 const QUICK_PAIRS = [
@@ -26,7 +27,7 @@ function Chevron() {
   )
 }
 
-function StarIcon({ filled }) {
+function BookmarkIcon({ filled }) {
   return (
     <svg
       className="w-4 h-4"
@@ -37,7 +38,7 @@ function StarIcon({ filled }) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      <path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" />
     </svg>
   )
 }
@@ -73,19 +74,16 @@ export default function Converter({
 
   return (
     <section
-      className="rounded-3xl bg-card/90 border border-zinc-800/90 p-5 sm:p-7 shadow-xl shadow-glass backdrop-blur-md"
-      data-purpose="calculadora-cambio"
+      className="rounded-3xl bg-card border border-zinc-800/90 p-5 sm:p-7"
+      data-purpose="conversor-moedas"
     >
       <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-zinc-800/60">
         <h3 className="text-sm font-bold tracking-wide text-white flex items-center gap-2">
           <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M3 6h18M3 12h18m-7 6h7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Calculadora de Câmbio Instantâneo
+          Conversor de moedas
         </h3>
-        <span className="text-[11px] font-mono text-green-400 bg-green-950/40 border border-green-500/20 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
-          Sem taxa adicional
-        </span>
       </div>
 
       <div className="space-y-5">
@@ -97,7 +95,7 @@ export default function Converter({
           >
             Valor a converter
           </label>
-          <div className="relative rounded-2xl border border-zinc-700/80 bg-subcard hover:border-green-500/50 transition-all focus-within:ring-2 focus-within:ring-green-500/40 focus-within:border-green-400 shadow-inner">
+          <div className="relative rounded-2xl border border-zinc-700/80 bg-subcard hover:border-green-500/50 transition-colors focus-within:ring-2 focus-within:ring-green-500/40 focus-within:border-green-400">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-mono font-bold text-lg select-none">
               {currencyPrefix(from)}
             </div>
@@ -106,9 +104,15 @@ export default function Converter({
               type="text"
               inputMode="decimal"
               value={amount}
-              onChange={(event) => onAmountChange(event.target.value.replace(/[^\d.,]/g, ''))}
+              onChange={(event) => {
+                const next = sanitizeAmountInput(event.target.value)
+                if (next !== null) onAmountChange(next)
+              }}
               placeholder="0,00"
-              className="w-full bg-transparent text-white text-xl sm:text-2xl font-bold py-3.5 pl-14 pr-4 border-none focus:ring-0 focus:outline-none font-mono placeholder:text-zinc-600"
+              maxLength={16}
+              autoComplete="off"
+              spellCheck={false}
+              className="w-full bg-transparent text-white text-xl sm:text-2xl font-bold py-3.5 pl-16 pr-4 border-none focus:ring-0 focus:outline-none font-mono placeholder:text-zinc-600"
             />
           </div>
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-2.5">
@@ -141,7 +145,7 @@ export default function Converter({
                 id="from-currency"
                 value={from}
                 onChange={(event) => onFromChange(event.target.value)}
-                className="w-full appearance-none rounded-2xl bg-subcard border border-zinc-700/80 text-white font-medium py-3.5 pl-4 pr-10 text-sm focus:ring-2 focus:ring-green-500/40 focus:border-green-400 cursor-pointer shadow-inner"
+                className="w-full appearance-none rounded-2xl bg-subcard border border-zinc-700/80 text-white font-medium py-3.5 pl-4 pr-10 text-sm focus:ring-2 focus:ring-green-500/40 focus:border-green-400 cursor-pointer"
               >
                 {options.map((option) => (
                   <option key={option.code} value={option.code}>
@@ -159,10 +163,10 @@ export default function Converter({
               aria-label="Inverter moedas"
               title="Inverter moedas"
               onClick={onSwap}
-              className="w-12 h-12 rounded-2xl bg-[#1f1f1f] border border-green-500/30 hover:border-green-400 text-green-400 hover:text-white flex items-center justify-center transition-all duration-300 shadow-md shadow-green-950/40 hover:scale-105 active:scale-95 group"
+              className="w-12 h-12 rounded-2xl bg-subcard border border-zinc-700 hover:border-green-500/50 text-zinc-300 hover:text-green-400 flex items-center justify-center transition-colors"
             >
               <svg
-                className="w-5 h-5 transition-transform duration-300 group-hover:rotate-180"
+                className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.2"
@@ -189,7 +193,7 @@ export default function Converter({
                 id="to-currency"
                 value={to}
                 onChange={(event) => onToChange(event.target.value)}
-                className="w-full appearance-none rounded-2xl bg-subcard border border-zinc-700/80 text-white font-medium py-3.5 pl-4 pr-10 text-sm focus:ring-2 focus:ring-green-500/40 focus:border-green-400 cursor-pointer shadow-inner"
+                className="w-full appearance-none rounded-2xl bg-subcard border border-zinc-700/80 text-white font-medium py-3.5 pl-4 pr-10 text-sm focus:ring-2 focus:ring-green-500/40 focus:border-green-400 cursor-pointer"
               >
                 {options.map((option) => (
                   <option key={option.code} value={option.code}>
@@ -214,7 +218,7 @@ export default function Converter({
                 onClick={() => onApplyPair(pairFrom, pairTo)}
                 className={`whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-bold border transition ${
                   active
-                    ? 'bg-[#1a1a1a] border-green-500/40 text-green-300'
+                    ? 'bg-subcard border-green-500/40 text-green-300'
                     : 'bg-subcard border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600'
                 }`}
               >
@@ -248,12 +252,12 @@ export default function Converter({
         )}
 
         {/* Taxa atual e data da cotação */}
-        <div className="p-3 rounded-2xl bg-[#111111] border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 text-xs">
+        <div className="p-3 rounded-2xl bg-panel border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 text-xs">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-zinc-400 font-semibold tracking-wider uppercase text-[10px]">
               Taxa atual
             </span>
-            <span className="inline-flex items-center font-bold font-mono px-2.5 py-1 rounded-lg bg-[#1f1f1f] border border-green-500/20 text-green-300">
+            <span className="inline-flex items-center font-bold font-mono px-2.5 py-1 rounded-lg bg-subcard border border-green-500/20 text-green-300">
               1 {from} = {formatRate(rate)} {to}
             </span>
             {from === to && (
@@ -269,40 +273,54 @@ export default function Converter({
           </span>
         </div>
 
-        {/* Ações: favoritar par e congelar taxa */}
+        {/* Ações: salvar par e congelar taxa */}
         <div className="flex items-stretch gap-2.5">
           <button
             type="button"
             onClick={onToggleFreeze}
-            disabled={rateLoading && !isFrozen}
-            className={`flex-1 py-4 px-4 sm:px-6 rounded-2xl font-extrabold text-xs sm:text-sm uppercase tracking-wide sm:tracking-wider whitespace-nowrap flex items-center justify-center gap-2 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 ${
+            disabled={!isFrozen && (rateLoading || rate == null)}
+            aria-pressed={isFrozen}
+            className={`flex-1 py-4 px-4 sm:px-6 rounded-2xl border font-extrabold text-xs sm:text-sm uppercase tracking-wide sm:tracking-wider whitespace-nowrap flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               isFrozen
-                ? 'bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white shadow-lg shadow-green-500/25'
-                : 'bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-zinc-950 shadow-lg shadow-green-500/25'
+                ? 'bg-zinc-800 border-green-500/40 text-green-300 hover:bg-zinc-700'
+                : 'bg-green-500 border-green-500 text-zinc-950 hover:bg-green-400'
             }`}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path d="M13 10V3L4 14h7v7l9-11h-7z" strokeLinecap="round" strokeLinejoin="round" />
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              {isFrozen ? (
+                <>
+                  <rect x="5" y="11" width="14" height="10" rx="2" />
+                  <path d="M8 11V7a4 4 0 0 1 7.5-2" strokeLinecap="round" />
+                </>
+              ) : (
+                <>
+                  <rect x="5" y="11" width="14" height="10" rx="2" />
+                  <path d="M8 11V7a4 4 0 0 1 8 0v4" strokeLinecap="round" />
+                </>
+              )}
             </svg>
             {isFrozen
               ? `Liberar taxa · ${frozenSecondsLeft}s`
               : rateLoading
                 ? 'Carregando taxa...'
-                : 'Congelar taxa por 60s'}
+                : rate == null
+                  ? 'Taxa indisponível'
+                  : 'Congelar taxa por 60s'}
           </button>
 
           <button
             type="button"
             onClick={onToggleFavorite}
             aria-label={isFavorite ? 'Remover dos favoritos' : 'Salvar par nos favoritos'}
+            aria-pressed={isFavorite}
             title={isFavorite ? 'Remover dos favoritos' : 'Salvar par nos favoritos'}
-            className={`shrink-0 p-4 rounded-2xl border transition ${
+            className={`shrink-0 p-4 rounded-2xl border transition-colors ${
               isFavorite
                 ? 'bg-green-500/10 border-green-500/40 text-green-400'
                 : 'bg-subcard border-zinc-800 text-zinc-400 hover:text-green-300 hover:border-green-500/40'
             }`}
           >
-            <StarIcon filled={isFavorite} />
+            <BookmarkIcon filled={isFavorite} />
           </button>
         </div>
       </div>

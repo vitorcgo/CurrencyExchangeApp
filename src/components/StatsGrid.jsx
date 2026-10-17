@@ -65,9 +65,9 @@ export default function StatsGrid({ points, from, to }) {
       </h3>
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
-        <div className="bg-[#111111] p-3 rounded-2xl border border-zinc-800/80">
+        <div className="bg-subcard p-3 rounded-2xl border border-zinc-800/80">
           <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
-            Tendência técnica
+            Tendência do período
           </span>
           <span
             className={`text-sm font-bold font-mono mt-1 flex items-center gap-1.5 flex-wrap ${TREND_TONES[stats.trend.direction]}`}
@@ -82,7 +82,7 @@ export default function StatsGrid({ points, from, to }) {
           </span>
         </div>
 
-        <div className="bg-[#111111] p-3 rounded-2xl border border-zinc-800/80">
+        <div className="bg-subcard p-3 rounded-2xl border border-zinc-800/80">
           <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
             Volatilidade diária
           </span>
@@ -92,7 +92,7 @@ export default function StatsGrid({ points, from, to }) {
           </span>
         </div>
 
-        <div className="bg-[#111111] p-3 rounded-2xl border border-zinc-800/80">
+        <div className="bg-subcard p-3 rounded-2xl border border-zinc-800/80">
           <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
             Mínimo do período
           </span>
@@ -101,7 +101,7 @@ export default function StatsGrid({ points, from, to }) {
           </span>
         </div>
 
-        <div className="bg-[#111111] p-3 rounded-2xl border border-zinc-800/80">
+        <div className="bg-subcard p-3 rounded-2xl border border-zinc-800/80">
           <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
             Última cotação
           </span>

@@ -4,14 +4,14 @@ import { minMax, periodChange } from '../utils/stats.js'
 
 function MiniStat({ label, value, accent, trend }) {
   let color = 'text-zinc-300'
-  if (trend != null && !Number.isNaN(trend)) {
+  if (trend != null && Number.isFinite(trend)) {
     color = trend > 0 ? 'text-green-400' : trend < 0 ? 'text-zinc-200' : 'text-zinc-300'
   } else if (accent) {
     color = 'text-green-300'
   }
 
   return (
-    <div className="bg-subcard/80 p-2 rounded-xl border border-zinc-800">
+    <div className="bg-subcard p-2 rounded-xl border border-zinc-800">
       <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider">{label}</p>
       <p className={`text-xs font-bold font-mono mt-0.5 ${color}`}>{value}</p>
     </div>
@@ -28,17 +28,13 @@ export default function ConvertedHero({ amount, rate, from, to, points, isFrozen
 
   return (
     <section
-      className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#0a0a0a] via-card to-panel border border-green-500/20 p-5 sm:p-6 shadow-2xl shadow-green-950/20 shadow-glass"
+      className="rounded-3xl bg-card border border-zinc-800 p-5 sm:p-6"
       data-purpose="valor-convertido"
     >
-      <div className="absolute -top-16 -right-16 w-48 h-48 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="relative z-10">
+      <div>
         <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-zinc-800/70">
           <span className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-green-400 uppercase">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            Valor convertido em tempo real
+            Valor convertido
           </span>
           <span
             className={`text-[11px] font-mono font-semibold px-2 py-0.5 rounded border ${
@@ -47,14 +43,14 @@ export default function ConvertedHero({ amount, rate, from, to, points, isFrozen
                 : 'bg-zinc-800/60 text-zinc-400 border-zinc-700/60'
             }`}
           >
-            {isFrozen ? `Taxa congelada · ${frozenSecondsLeft}s` : 'Taxa ao vivo'}
+            {isFrozen ? `Taxa congelada · ${frozenSecondsLeft}s` : 'Taxa de referência'}
           </span>
         </div>
 
         <div className="py-3.5 text-center sm:text-left">
           <div className="flex items-baseline justify-center sm:justify-start gap-2 min-w-0">
             <span className="text-lg sm:text-xl font-bold text-zinc-400 font-mono shrink-0">{currencyPrefix(to)}</span>
-            <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-neon-strong drop-shadow-[0_0_24px_rgba(34,197,94,0.45)] font-mono max-w-full truncate">
+            <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-green-400 font-mono max-w-full truncate">
               {rate == null ? '-' : formatNumber(converted, 2)}
             </h2>
           </div>

@@ -3,6 +3,7 @@ import Card from './Card.jsx'
 import { withVariation } from '../utils/stats.js'
 import { formatDate, formatRate, formatSignedPercent } from '../utils/format.js'
 import { buildCsv, downloadCsv } from '../utils/csv.js'
+import { todayISO } from '../utils/dates.js'
 
 const PAGE_SIZE = 8
 
@@ -32,7 +33,7 @@ function SortIcon({ active, direction }) {
   )
 }
 
-// Mini-gráfico da janela de 7 dias que termina no dia da linha
+// Mini-gráfico dos últimos pontos que terminam no dia da linha
 function Sparkline({ values }) {
   if (!values || values.length < 2) {
     return <span className="text-xs text-zinc-600 font-mono">-</span>
@@ -119,8 +120,7 @@ export default function RatesTable({ points, loading, from, to, timeframe }) {
   function handleExport() {
     if (!rows.length) return
     const csv = buildCsv(rows, { pair: `${from}/${to}` })
-    const today = new Date().toISOString().slice(0, 10)
-    downloadCsv(`cotacoes-${from}-${to}-${today}.csv`, csv)
+    downloadCsv(`cotacoes-${from}-${to}-${todayISO()}.csv`, csv)
   }
 
   const windowStart = Math.max(1, Math.min(currentPage - 2, pageCount - 4))
@@ -140,7 +140,7 @@ export default function RatesTable({ points, loading, from, to, timeframe }) {
             </span>
             Tabela de cotações
           </h3>
-          <span className="px-2.5 py-1 rounded-xl bg-[#111111] border border-green-500/20 text-xs font-mono font-bold text-green-400 whitespace-nowrap">
+          <span className="px-2.5 py-1 rounded-xl bg-subcard border border-green-500/20 text-xs font-mono font-bold text-green-400 whitespace-nowrap">
             {rows.length} {rows.length === 1 ? 'registro' : 'registros'}
           </span>
         </div>
@@ -152,7 +152,8 @@ export default function RatesTable({ points, loading, from, to, timeframe }) {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Filtrar por data..."
-              className="w-full bg-[#0a0a0a] border border-zinc-800 rounded-xl py-2 pl-9 pr-3 text-xs text-zinc-300 placeholder-zinc-500 focus:outline-none focus:border-green-500/50"
+              aria-label="Filtrar cotações por data"
+              className="w-full bg-panel border border-zinc-800 rounded-xl py-2 pl-9 pr-3 text-xs text-zinc-300 placeholder-zinc-500 focus:outline-none focus:border-green-500/50"
             />
             <svg
               className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2"
@@ -169,7 +170,8 @@ export default function RatesTable({ points, loading, from, to, timeframe }) {
           <select
             value={variationFilter}
             onChange={(event) => setVariationFilter(event.target.value)}
-            className="bg-[#171717] border border-zinc-700/80 rounded-xl py-2 px-3 text-xs font-semibold text-zinc-300 focus:outline-none focus:border-green-500/50 cursor-pointer"
+            aria-label="Filtrar por variação"
+            className="bg-subcard border border-zinc-700/80 rounded-xl py-2 px-3 text-xs font-semibold text-zinc-300 focus:outline-none focus:border-green-500/50 cursor-pointer"
           >
             {VARIATION_FILTERS.map((option) => (
               <option key={option.id} value={option.id}>
@@ -182,7 +184,7 @@ export default function RatesTable({ points, loading, from, to, timeframe }) {
             type="button"
             onClick={handleExport}
             disabled={!rows.length}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold transition shadow-lg shadow-green-950/40 whitespace-nowrap"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-950 text-xs font-bold transition-colors whitespace-nowrap"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path
@@ -200,19 +202,29 @@ export default function RatesTable({ points, loading, from, to, timeframe }) {
       {loading && !points.length ? (
         <div className="space-y-2">
           {Array.from({ length: 5 }, (_, index) => (
-            <div key={index} className="h-11 rounded-xl bg-[#1a1a1a]/70 animate-pulse" />
+            <div key={index} className="h-11 rounded-xl bg-subcard animate-pulse" />
           ))}
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-zinc-800/80 bg-[#0a0a0a]/60">
+        <div className="overflow-x-auto rounded-2xl border border-zinc-800/80 bg-panel">
           <table className="w-full text-left border-collapse min-w-[420px] sm:min-w-[600px]">
             <thead>
-              <tr className="border-b border-zinc-800 bg-[#151515] text-xs text-zinc-400 font-semibold select-none">
-                <th scope="col" className="py-3.5 px-3 sm:px-5 font-semibold">
+              <tr className="border-b border-zinc-800 bg-subcard text-xs text-zinc-400 font-semibold select-none">
+                <th
+                  scope="col"
+                  aria-sort={
+                    sort.key === 'date'
+                      ? sort.direction === 'asc'
+                        ? 'ascending'
+                        : 'descending'
+                      : 'none'
+                  }
+                  className="py-3.5 px-3 sm:px-5 font-semibold"
+                >
                   <button
                     type="button"
                     onClick={() => toggleSort('date')}
-                    className="flex items-center gap-1.5 hover:text-zinc-200 transition"
+                    className="flex items-center gap-1.5 hover:text-zinc-200 transition-colors"
                   >
                     Data
                     <SortIcon active={sort.key === 'date'} direction={sort.direction} />
@@ -222,20 +234,30 @@ export default function RatesTable({ points, loading, from, to, timeframe }) {
                   Par
                 </th>
                 <th scope="col" className="py-3.5 px-3 sm:px-5 font-semibold hidden md:table-cell">
-                  Tendência (7d)
+                  Tendência recente
                 </th>
-                <th scope="col" className="py-3.5 px-3 sm:px-5 text-right font-semibold">
+                <th
+                  scope="col"
+                  aria-sort={
+                    sort.key === 'rate'
+                      ? sort.direction === 'asc'
+                        ? 'ascending'
+                        : 'descending'
+                      : 'none'
+                  }
+                  className="py-3.5 px-3 sm:px-5 text-right font-semibold"
+                >
                   <button
                     type="button"
                     onClick={() => toggleSort('rate')}
-                    className="inline-flex items-center gap-1.5 hover:text-zinc-200 transition"
+                    className="inline-flex items-center gap-1.5 hover:text-zinc-200 transition-colors"
                   >
-                    Fechamento
+                    Taxa
                     <SortIcon active={sort.key === 'rate'} direction={sort.direction} />
                   </button>
                 </th>
                 <th scope="col" className="py-3.5 px-3 sm:px-5 text-right font-semibold whitespace-nowrap">
-                  Variação 24h
+                  Variação
                 </th>
               </tr>
             </thead>
@@ -248,15 +270,12 @@ export default function RatesTable({ points, loading, from, to, timeframe }) {
                 </tr>
               ) : (
                 visible.map((row) => (
-                  <tr key={row.date} className="hover:bg-[#1a1a1a]/80 transition-colors">
+                  <tr key={row.date} className="hover:bg-subcard transition-colors">
                     <td className="py-3 px-3 sm:px-5 text-white font-mono text-xs sm:text-sm whitespace-nowrap">
-                      <span className="inline-flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
-                        {formatDate(row.date)}
-                      </span>
+                      {formatDate(row.date)}
                     </td>
                     <td className="py-3 px-3 sm:px-5 hidden sm:table-cell">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#1a1a1a] border border-zinc-800 font-mono text-xs text-zinc-200 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-subcard border border-zinc-800 font-mono text-xs text-zinc-200 whitespace-nowrap">
                         {from} / {to}
                       </span>
                     </td>
@@ -300,12 +319,12 @@ export default function RatesTable({ points, loading, from, to, timeframe }) {
             ? 'Nenhum registro'
             : `Mostrando ${start + 1} a ${Math.min(start + PAGE_SIZE, rows.length)} de ${rows.length} cotações`}
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
             onClick={() => setPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-lg bg-[#171717] border border-zinc-800 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 rounded-lg bg-subcard border border-zinc-800 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Anterior
           </button>
@@ -314,10 +333,11 @@ export default function RatesTable({ points, loading, from, to, timeframe }) {
               key={number}
               type="button"
               onClick={() => setPage(number)}
-              className={`px-3 py-1.5 rounded-lg border transition ${
+              aria-current={number === currentPage ? 'page' : undefined}
+              className={`px-3 py-1.5 rounded-lg border transition-colors ${
                 number === currentPage
                   ? 'bg-green-500/20 border-green-500/40 text-green-300 font-bold'
-                  : 'bg-[#171717] border-zinc-800 hover:text-white'
+                  : 'bg-subcard border-zinc-800 hover:text-white'
               }`}
             >
               {number}
@@ -327,7 +347,7 @@ export default function RatesTable({ points, loading, from, to, timeframe }) {
             type="button"
             onClick={() => setPage((prev) => Math.min(pageCount, prev + 1))}
             disabled={currentPage === pageCount}
-            className="px-3 py-1.5 rounded-lg bg-[#171717] border border-zinc-800 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 rounded-lg bg-subcard border border-zinc-800 hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Próxima
           </button>
