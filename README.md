@@ -9,11 +9,11 @@ consumo de API, gráficos, filtros, ordenação e exportação CSV.
 
 ## Funcionalidades
 
-- Conversão instantânea entre as 30 moedas suportadas pela API
+- Conversão entre as 30 moedas suportadas pela API
 - Atalhos de valor (100, 500, 1.000 e 5.000) e pares rápidos
 - Inversão de moedas com um clique
 - Congelamento da taxa por 60 segundos, com contagem regressiva
-- Ticker no cabeçalho com a variação do dia (USD/BRL, EUR/USD, GBP/USD, AUD/USD)
+- Ticker no cabeçalho com a variação recente (USD/BRL, EUR/USD, GBP/USD, AUD/USD)
 - Gráfico histórico em SVG com tooltip, médias móveis SMA(20) e SMA(50) e
   períodos de análise (7d, 15d, 30d, 3m, 6m, 1a e Max)
 - Painel de estatísticas: tendência, volatilidade diária, mínimo e última cotação
@@ -21,6 +21,7 @@ consumo de API, gráficos, filtros, ordenação e exportação CSV.
   por data ou valor e paginação
 - Exportação CSV do resultado filtrado, pronta para o Excel em português
 - Favoritos do usuário salvos no navegador (localStorage)
+- Validação do valor digitado, dos favoritos e das respostas da API
 - Estados de carregamento, mensagens de erro com "tentar novamente" e
   cancelamento de requisições antigas (AbortController)
 
@@ -72,6 +73,7 @@ src/
     stats.js                variação, média móvel, volatilidade e tendência
     dates.js                períodos de análise e série de paridade
     csv.js                  geração e download do CSV
+    validation.js           validação de moedas, favoritos e valor digitado
   App.jsx                   estado compartilhado (lifting state up)
   main.jsx                  ponto de entrada
   index.css                 tema cinza chumbo, preto e verde (tokens do Tailwind)
@@ -84,10 +86,10 @@ Base: `https://api.frankfurter.dev/v1`
 - `GET /currencies` lista as moedas disponíveis
 - `GET /{inicio}..{fim}?base=USD&symbols=BRL` série histórica do par
 
-As taxas são publicadas pelo BCE em dias úteis (por volta das 16h, horário de
-Brasília). Fins de semana e feriados repetem a última cotação disponível.
-Quando origem e destino são a mesma moeda, o app exibe uma série de paridade
-1:1 gerada localmente.
+As taxas são publicadas pelo BCE em dias úteis, por volta das 16h no horário
+de Frankfurt. Não há publicação em fins de semana e feriados; o app usa sempre
+a última cotação disponível. Quando origem e destino são a mesma moeda, o app
+exibe uma série de paridade 1:1 gerada localmente.
 
 ## Onde está cada conteúdo das aulas
 
@@ -116,7 +118,7 @@ O histórico foi organizado em commits pequenos, em português, no padrão
 Para publicar no seu GitHub:
 
 ```bash
-git remote add origin https://github.com/SEU-USUARIO/FrankFrutyh.git
+git remote add origin https://github.com/SEU-USUARIO/frankfurter-pro-terminal.git
 git push -u origin main
 ```
 
