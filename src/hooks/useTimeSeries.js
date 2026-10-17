@@ -12,6 +12,7 @@ export function useTimeSeries(from, to, timeframe) {
     error: null,
     latency: null,
     latestDate: null,
+    key: null,
   })
   const [reloadKey, setReloadKey] = useState(0)
 
@@ -29,12 +30,20 @@ export function useTimeSeries(from, to, timeframe) {
         error: null,
         latency: null,
         latestDate: points[points.length - 1]?.date ?? null,
+        key: `${from}/${to}`,
       })
       return undefined
     }
 
     const controller = new AbortController()
-    setState((prev) => ({ ...prev, loading: true, error: null }))
+    const key = `${from}/${to}`
+    // Par mudou: limpa os pontos para nunca exibir dados antigos
+    // junto do título do novo par durante o carregamento
+    setState((prev) =>
+      prev.key === key
+        ? { ...prev, loading: true, error: null }
+        : { points: [], loading: true, error: null, latency: null, latestDate: null, key },
+    )
 
     async function load() {
       try {
@@ -53,6 +62,7 @@ export function useTimeSeries(from, to, timeframe) {
           error: null,
           latency,
           latestDate: points[points.length - 1]?.date ?? data.end_date ?? null,
+          key,
         })
       } catch (error) {
         if (error.name === 'AbortError') return

@@ -55,7 +55,7 @@ export default function ConvertedHero({ amount, rate, from, to, points, isFrozen
           <div className="flex items-baseline justify-center sm:justify-start gap-2 min-w-0">
             <span className="text-lg sm:text-xl font-bold text-slate-400 font-mono shrink-0">{currencyPrefix(to)}</span>
             <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-neon-strong drop-shadow-[0_0_24px_rgba(0,242,254,0.4)] font-mono max-w-full truncate">
-              {formatNumber(converted, 2)}
+              {rate == null ? '-' : formatNumber(converted, 2)}
             </h2>
           </div>
           <p className="text-xs sm:text-sm font-medium text-slate-400 pt-1 flex items-center justify-center sm:justify-start gap-2 flex-wrap">
