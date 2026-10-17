@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import Card from './Card.jsx'
 import { useElementWidth } from '../hooks/useElementWidth.js'
 import { sma } from '../utils/stats.js'
@@ -31,6 +31,19 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
   const containerRef = useRef(null)
   const width = useElementWidth(containerRef)
   const [hoverIndex, setHoverIndex] = useState(null)
+  const tooltipRef = useRef(null)
+  const [tooltipWidth, setTooltipWidth] = useState(0)
+
+  // Mede a largura real do balão (o conteúdo varia com a cotação)
+  // antes da pintura, para conseguir prendê-lo nas bordas
+  useLayoutEffect(() => {
+    const element = tooltipRef.current
+    if (!element) return
+    const measured = element.offsetWidth
+    if (measured) {
+      setTooltipWidth((current) => (current === measured ? current : measured))
+    }
+  })
 
   // Reinicia o destaque quando a série muda (troca de par ou período),
   // senão o índice antigo pode apontar para fora da nova lista
@@ -127,9 +140,13 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
       ? ((activePoint.rate - previousPoint.rate) / previousPoint.rate) * 100
       : null
 
+  // Prende o balão inteiro dentro da área do gráfico, inclusive nas bordas
+  const tooltipHalf = tooltipWidth / 2
+  const tooltipMinX = tooltipHalf + 4
+  const tooltipMaxX = Math.max(width - tooltipHalf - 4, tooltipMinX)
   const tooltipX =
     geometry && activeIndex != null
-      ? Math.min(Math.max(padLeft + geometry.xAt(activeIndex), 118), Math.max(width - 118, 118))
+      ? Math.min(Math.max(padLeft + geometry.xAt(activeIndex), tooltipMinX), tooltipMaxX)
       : 0
 
   return (
@@ -186,6 +203,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
             <>
               {activePoint && (
                 <div
+                  ref={tooltipRef}
                   className="absolute top-2 z-20 pointer-events-none -translate-x-1/2 bg-[#111111]/95 border border-green-500/40 rounded-xl px-3 py-1.5 shadow-xl shadow-green-950/60 backdrop-blur-md flex items-center gap-2 sm:gap-3"
                   style={{ left: tooltipX }}
                 >
