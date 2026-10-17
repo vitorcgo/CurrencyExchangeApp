@@ -9,6 +9,7 @@ import { useCurrencies } from './hooks/useCurrencies.js'
 import { useLocalStorage } from './hooks/useLocalStorage.js'
 import { useTicker } from './hooks/useTicker.js'
 import { useTimeSeries } from './hooks/useTimeSeries.js'
+import { formatDate } from './utils/format.js'
 
 const FREEZE_SECONDS = 60
 
@@ -173,6 +174,13 @@ export default function App() {
       <footer className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-2">
         <p className="text-center text-xs text-slate-500">
           Projeto didático de React com Vite. Dados: Frankfurter API (taxas de referência do BCE).
+          {series.latestDate && (
+            <>
+              {' '}
+              Última cotação oficial:{' '}
+              <span className="font-mono text-slate-400">{formatDate(series.latestDate)}</span>.
+            </>
+          )}
         </p>
       </footer>
     </div>
