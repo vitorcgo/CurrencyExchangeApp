@@ -35,7 +35,7 @@ export default function ConvertedHero({ amount, rate, from, to, points, isFrozen
       <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10">
-        <div className="flex items-center justify-between pb-2.5 border-b border-slate-800/70">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-800/70">
           <span className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-widest text-cyan-400 uppercase">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
             Valor convertido em tempo real
@@ -52,9 +52,9 @@ export default function ConvertedHero({ amount, rate, from, to, points, isFrozen
         </div>
 
         <div className="py-3.5 text-center sm:text-left">
-          <div className="flex items-baseline justify-center sm:justify-start gap-2">
-            <span className="text-xl font-bold text-slate-400 font-mono">{currencyPrefix(to)}</span>
-            <h2 className="text-5xl font-extrabold tracking-tight text-neon-strong drop-shadow-[0_0_24px_rgba(0,242,254,0.4)] font-mono">
+          <div className="flex items-baseline justify-center sm:justify-start gap-2 min-w-0">
+            <span className="text-lg sm:text-xl font-bold text-slate-400 font-mono shrink-0">{currencyPrefix(to)}</span>
+            <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-neon-strong drop-shadow-[0_0_24px_rgba(0,242,254,0.4)] font-mono max-w-full truncate">
               {formatNumber(converted, 2)}
             </h2>
           </div>
@@ -69,7 +69,7 @@ export default function ConvertedHero({ amount, rate, from, to, points, isFrozen
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-2.5 pt-2.5 border-t border-slate-800/70 text-center">
+        <div className="grid grid-cols-3 gap-2 sm:gap-2.5 pt-2.5 border-t border-slate-800/70 text-center">
           <MiniStat label="Mín. período" value={formatRate(stats.min)} />
           <MiniStat label="Máx. período" value={formatRate(stats.max)} accent />
           <MiniStat

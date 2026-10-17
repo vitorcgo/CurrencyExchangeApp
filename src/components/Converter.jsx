@@ -73,10 +73,10 @@ export default function Converter({
 
   return (
     <section
-      className="rounded-3xl bg-card/90 border border-slate-800/90 p-6 sm:p-7 shadow-xl shadow-glass backdrop-blur-md"
+      className="rounded-3xl bg-card/90 border border-slate-800/90 p-5 sm:p-7 shadow-xl shadow-glass backdrop-blur-md"
       data-purpose="calculadora-cambio"
     >
-      <div className="flex items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800/60">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800/60">
         <h3 className="text-sm font-bold tracking-wide text-white flex items-center gap-2">
           <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M3 6h18M3 12h18m-7 6h7" strokeLinecap="round" strokeLinejoin="round" />
@@ -108,17 +108,17 @@ export default function Converter({
               value={amount}
               onChange={(event) => onAmountChange(event.target.value)}
               placeholder="0,00"
-              className="w-full bg-transparent text-white text-2xl font-bold py-3.5 pl-14 pr-4 border-none focus:ring-0 focus:outline-none font-mono placeholder:text-slate-600"
+              className="w-full bg-transparent text-white text-xl sm:text-2xl font-bold py-3.5 pl-14 pr-4 border-none focus:ring-0 focus:outline-none font-mono placeholder:text-slate-600"
             />
           </div>
-          <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-2.5">
             <span className="text-[10px] text-slate-400 uppercase font-semibold">Atalhos:</span>
             {PRESETS.map((preset) => (
               <button
                 key={preset}
                 type="button"
                 onClick={() => onAmountChange(String(preset))}
-                className="px-2.5 py-1 rounded-lg bg-subcard border border-slate-800 hover:border-cyan-500/40 text-xs font-mono text-slate-300 hover:text-white transition"
+                className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-subcard border border-slate-800 hover:border-cyan-500/40 text-xs font-mono text-slate-300 hover:text-white transition"
               >
                 {currencyPrefix(from)}
                 {formatNumber(preset, 0)}
@@ -212,7 +212,7 @@ export default function Converter({
                 key={`${pairFrom}${pairTo}`}
                 type="button"
                 onClick={() => onApplyPair(pairFrom, pairTo)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition ${
+                className={`whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-bold border transition ${
                   active
                     ? 'bg-[#0c1828] border-cyan-500/40 text-cyan-300'
                     : 'bg-subcard border-slate-800 text-slate-400 hover:text-white hover:border-slate-600'
@@ -234,7 +234,7 @@ export default function Converter({
                   key={`${favorite.from}${favorite.to}`}
                   type="button"
                   onClick={() => onApplyPair(favorite.from, favorite.to)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition ${
+                  className={`whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-bold border transition ${
                     active
                       ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
                       : 'bg-subcard border-slate-800 text-slate-400 hover:text-white hover:border-slate-600'
@@ -248,7 +248,7 @@ export default function Converter({
         )}
 
         {/* Taxa atual e data da cotação */}
-        <div className="p-3 rounded-2xl bg-[#09101c] border border-slate-800/80 flex items-center justify-between gap-3 text-xs">
+        <div className="p-3 rounded-2xl bg-[#09101c] border border-slate-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 text-xs">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-slate-400 font-semibold tracking-wider uppercase text-[10px]">
               Taxa atual
@@ -270,12 +270,12 @@ export default function Converter({
         </div>
 
         {/* Ações: favoritar par e congelar taxa */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-stretch gap-2.5">
           <button
             type="button"
             onClick={onToggleFreeze}
             disabled={rateLoading && !isFrozen}
-            className={`flex-1 py-4 px-6 rounded-2xl font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 ${
+            className={`flex-1 py-4 px-4 sm:px-6 rounded-2xl font-extrabold text-xs sm:text-sm uppercase tracking-wide sm:tracking-wider whitespace-nowrap flex items-center justify-center gap-2 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 ${
               isFrozen
                 ? 'bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-lg shadow-emerald-500/25'
                 : 'bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 shadow-lg shadow-cyan-500/25'
@@ -296,7 +296,7 @@ export default function Converter({
             onClick={onToggleFavorite}
             aria-label={isFavorite ? 'Remover dos favoritos' : 'Salvar par nos favoritos'}
             title={isFavorite ? 'Remover dos favoritos' : 'Salvar par nos favoritos'}
-            className={`p-4 rounded-2xl border transition ${
+            className={`shrink-0 p-4 rounded-2xl border transition ${
               isFavorite
                 ? 'bg-amber-500/10 border-amber-500/40 text-amber-400'
                 : 'bg-subcard border-slate-800 text-slate-400 hover:text-amber-300 hover:border-amber-500/40'

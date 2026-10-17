@@ -38,7 +38,7 @@ function MarketBadge() {
 function TickerItem({ label, rate, variation }) {
   const positive = variation >= 0
   return (
-    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/60 border border-slate-800 text-xs">
+    <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-900/60 border border-slate-800 text-xs">
       <span className="font-bold text-slate-300">{label}</span>
       <span className={`font-mono font-semibold ${positive ? 'text-emerald-400' : 'text-rose-400'}`}>
         {formatNumber(rate, 4)}
@@ -53,9 +53,9 @@ function TickerItem({ label, rate, variation }) {
 export default function Header({ status, latency, ticker, latestDate, onRefresh }) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-panel/90 backdrop-blur-xl shadow-2xl">
-      <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+      <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-3 lg:gap-4">
         {/* Marca */}
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-3.5 min-w-0">
           <div className="relative w-11 h-11 rounded-2xl ring-1 ring-cyan-500/40 p-0.5 bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-950/50">
             <div className="w-full h-full bg-obsidian rounded-[14px] flex items-center justify-center">
               <svg
@@ -73,31 +73,31 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
               </svg>
             </div>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-bold text-white tracking-tight">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-nowrap">
+              <h1 className="text-base sm:text-lg font-bold text-white tracking-tight whitespace-nowrap">
                 Currency Exchange
               </h1>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
                 Pro Terminal
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-medium flex items-center gap-2">
+            <p className="text-xs text-slate-400 font-medium flex items-center gap-2 whitespace-nowrap truncate">
               Taxas de referência do BCE via Frankfurter API
               {latestDate && (
-                <>
+                <span className="hidden md:inline-flex items-center gap-2">
                   <span className="inline-block w-1 h-1 rounded-full bg-slate-600" />
                   <span className="text-slate-500 font-mono text-[11px]">
                     última cotação {formatDate(latestDate)}
                   </span>
-                </>
+                </span>
               )}
             </p>
           </div>
         </div>
 
         {/* Ticker ao vivo, apenas em telas largas */}
-        <div className="hidden xl:flex items-center gap-2 bg-subcard/80 border border-slate-800/90 rounded-2xl px-3 py-1.5 shadow-inner">
+        <div className="hidden xl:flex items-center gap-2 shrink-0 overflow-hidden bg-subcard/80 border border-slate-800/90 rounded-2xl px-3 py-1.5 shadow-inner">
           {ticker.loading && (
             <span className="text-xs text-slate-500 font-mono px-2 animate-pulse">
               carregando cotações...
@@ -112,7 +112,7 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
         </div>
 
         {/* Status e ações */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <MarketBadge />
 
           <div
