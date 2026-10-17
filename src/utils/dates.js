@@ -32,28 +32,31 @@ export function isoDaysAgo(days) {
 // Converte o id do período em datas de início e fim para a API
 export function timeframeRange(timeframeId) {
   const timeframe = TIMEFRAMES.find((item) => item.id === timeframeId)
-  if (!timeframe || timeframe.days == null) {
+  if (!timeframe) {
+    return { start: isoDaysAgo(29), end: todayISO() }
+  }
+  if (timeframe.days == null) {
     return { start: FIRST_ECB_DATE, end: todayISO() }
   }
-  return { start: isoDaysAgo(timeframe.days), end: todayISO() }
+  // Inclui o dia de hoje na contagem (7d = hoje mais 6 dias anteriores)
+  return { start: isoDaysAgo(Math.max(0, timeframe.days - 1)), end: todayISO() }
 }
 
 // Série "1:1" sintética para quando origem e destino são a mesma moeda.
 // A Frankfurter não devolve taxa AUD/AUD, então simulamos os dias úteis
 // com taxa fixa em 1 para o gráfico e a tabela continuarem funcionando.
 export function paritySeries(timeframeId) {
-  const timeframe = TIMEFRAMES.find((item) => item.id === timeframeId)
-  const days = timeframe?.days ?? 90
-  const cap = Math.min(days, 366)
-
+  const { start, end } = timeframeRange(timeframeId)
+  const cursor = new Date(`${start}T12:00:00`)
+  const limit = new Date(`${end}T12:00:00`)
   const points = []
-  const cursor = new Date()
-  while (points.length < cap) {
+
+  while (cursor <= limit) {
     const weekDay = cursor.getDay()
     if (weekDay !== 0 && weekDay !== 6) {
       points.push({ date: toISO(cursor), rate: 1 })
     }
-    cursor.setDate(cursor.getDate() - 1)
+    cursor.setDate(cursor.getDate() + 1)
   }
-  return points.reverse()
+  return points
 }

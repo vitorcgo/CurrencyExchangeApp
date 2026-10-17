@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getCurrencies } from '../api/frankfurter.js'
+import { isCurrencyCode } from '../utils/validation.js'
 
 // Busca a lista de moedas suportadas pela API.
 // Em caso de falha, o Converter usa uma lista local de emergência.
@@ -16,9 +17,18 @@ export function useCurrencies() {
     async function load() {
       try {
         const { data } = await getCurrencies(controller.signal)
-        const currencies = Object.entries(data)
+        const entries =
+          data && typeof data === 'object' && !Array.isArray(data)
+            ? Object.entries(data)
+            : []
+        const currencies = entries
+          .filter(([code, name]) => isCurrencyCode(code) && typeof name === 'string')
           .map(([code, name]) => ({ code, name }))
           .sort((a, b) => a.code.localeCompare(b.code))
+
+        if (!currencies.length) {
+          throw new Error('Nenhuma moeda disponível na API.')
+        }
         setState({ currencies, loading: false, error: null })
       } catch (error) {
         if (error.name === 'AbortError') return

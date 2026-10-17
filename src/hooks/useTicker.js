@@ -12,18 +12,37 @@ const TICKER_PAIRS = [
 
 // Monta os itens do ticker com cotação mais recente e variação
 // em relação à cotação anterior (lendo os dois últimos dias úteis)
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
+
 function buildItems(rates) {
-  const dates = Object.keys(rates).sort()
+  if (!rates || typeof rates !== 'object') return []
+
+  const dates = Object.keys(rates).filter((date) => ISO_DATE.test(date)).sort()
   if (dates.length < 2) return []
 
   const latest = rates[dates[dates.length - 1]]
   const previous = rates[dates[dates.length - 2]]
+  if (!latest || typeof latest !== 'object' || !previous || typeof previous !== 'object') {
+    return []
+  }
 
   return TICKER_PAIRS.map(({ label, code, invert }) => {
-    const now = invert ? 1 / latest[code] : latest[code]
-    const before = invert ? 1 / previous[code] : previous[code]
+    const latestValue = latest?.[code]
+    const previousValue = previous?.[code]
+    if (
+      !Number.isFinite(latestValue) ||
+      !Number.isFinite(previousValue) ||
+      previousValue === 0
+    ) {
+      return null
+    }
+
+    const now = invert ? 1 / latestValue : latestValue
+    const before = invert ? 1 / previousValue : previousValue
+    if (!Number.isFinite(now) || !Number.isFinite(before) || before === 0) return null
+
     return { label, rate: now, variation: ((now - before) / before) * 100 }
-  }).filter((item) => Number.isFinite(item.rate))
+  }).filter(Boolean)
 }
 
 export function useTicker() {
@@ -45,7 +64,7 @@ export function useTicker() {
           end: todayISO(),
           signal: controller.signal,
         })
-        setState({ items: buildItems(data.rates), loading: false, error: null })
+        setState({ items: buildItems(data?.rates), loading: false, error: null })
       } catch (error) {
         if (error.name === 'AbortError') return
         setState({ items: [], loading: false, error: error.message })

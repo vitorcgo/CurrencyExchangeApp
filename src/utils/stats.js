@@ -5,7 +5,10 @@ export function withVariation(points) {
     const previous = index > 0 ? points[index - 1].rate : null
     return {
       ...point,
-      variation: previous ? ((point.rate - previous) / previous) * 100 : null,
+      variation:
+        previous != null && previous !== 0
+          ? ((point.rate - previous) / previous) * 100
+          : null,
       spark: points.slice(Math.max(0, index - 6), index + 1).map((p) => p.rate),
     }
   })
@@ -48,6 +51,7 @@ export function periodChange(points) {
   if (points.length < 2) return null
   const first = points[0].rate
   const last = points[points.length - 1].rate
+  if (first === 0) return null
   return ((last - first) / first) * 100
 }
 

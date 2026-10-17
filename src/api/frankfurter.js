@@ -4,11 +4,24 @@ const BASE_URL = 'https://api.frankfurter.dev/v1'
 
 async function fetchJson(url, signal) {
   const started = performance.now()
-  const response = await fetch(url, { signal })
+  let response
+  try {
+    response = await fetch(url, { signal })
+  } catch (error) {
+    if (error.name === 'AbortError') throw error
+    throw new Error('Não foi possível conectar à Frankfurter API')
+  }
   if (!response.ok) {
     throw new Error(`Frankfurter API respondeu com erro ${response.status}`)
   }
-  const data = await response.json()
+
+  let data
+  try {
+    data = await response.json()
+  } catch (error) {
+    if (error.name === 'AbortError') throw error
+    throw new Error('Frankfurter API retornou uma resposta inválida')
+  }
   return { data, latency: Math.round(performance.now() - started) }
 }
 
@@ -25,13 +38,16 @@ export function getTimeSeries({ base, symbols, start, end, signal }) {
   return fetchJson(`${BASE_URL}/${start}..${end}?${params}`, signal)
 }
 
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
+
 // Converte o objeto `rates` da API em um array ordenado de pontos { date, rate }
 export function toPoints(rates, symbol) {
+  if (!rates || typeof rates !== 'object') return []
   return Object.entries(rates)
     .map(([date, value]) => ({
       date,
-      rate: typeof value === 'object' ? value[symbol] : value,
+      rate: value && typeof value === 'object' ? value[symbol] : value,
     }))
-    .filter((point) => point.rate != null)
+    .filter((point) => ISO_DATE.test(point.date) && Number.isFinite(point.rate))
     .sort((a, b) => a.date.localeCompare(b.date))
 }

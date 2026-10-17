@@ -36,7 +36,7 @@ export function currencyPrefix(code) {
 }
 
 export function formatNumber(value, digits = 2) {
-  if (value == null || Number.isNaN(value)) return '-'
+  if (value == null || !Number.isFinite(value)) return '-'
   return new Intl.NumberFormat('pt-BR', {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
@@ -53,16 +53,12 @@ export function rateDigits(value) {
 }
 
 export function formatRate(value) {
-  if (value == null || Number.isNaN(value)) return '-'
+  if (value == null || !Number.isFinite(value)) return '-'
   return formatNumber(value, rateDigits(value))
 }
 
-export function formatAmount(value, code) {
-  return `${currencyPrefix(code)}${formatNumber(value, 2)}`
-}
-
 export function formatSignedPercent(value, digits = 2) {
-  if (value == null || Number.isNaN(value)) return '-'
+  if (value == null || !Number.isFinite(value)) return '-'
   const sign = value > 0 ? '+' : ''
   return `${sign}${formatNumber(value, digits)}%`
 }
@@ -81,10 +77,11 @@ export function formatDateShort(iso) {
 
 // Aceita "1234.56" e "1.234,56" e devolve 1234.56
 export function parseAmount(raw) {
-  let text = String(raw).trim()
+  let text = String(raw ?? '').trim()
+  if (!text) return 0
   if (text.includes(',')) {
     text = text.replace(/\./g, '').replace(',', '.')
   }
-  const parsed = Number.parseFloat(text)
+  const parsed = Number(text)
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0
 }

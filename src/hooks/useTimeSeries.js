@@ -55,13 +55,16 @@ export function useTimeSeries(from, to, timeframe) {
           end,
           signal: controller.signal,
         })
-        const points = toPoints(data.rates, to)
+        const points = toPoints(data?.rates, to)
+        if (!points.length) {
+          throw new Error('Nenhuma cotação disponível para o período.')
+        }
         setState({
           points,
           loading: false,
           error: null,
           latency,
-          latestDate: points[points.length - 1]?.date ?? data.end_date ?? null,
+          latestDate: points[points.length - 1]?.date ?? null,
           key,
         })
       } catch (error) {
@@ -71,6 +74,8 @@ export function useTimeSeries(from, to, timeframe) {
           points: [],
           loading: false,
           error: error.message,
+          latency: null,
+          latestDate: null,
         }))
       }
     }

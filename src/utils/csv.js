@@ -1,13 +1,20 @@
 import { formatDate, formatNumber, formatRate } from './format.js'
 
+// Protege células de texto contra interpretação de fórmulas no Excel
+function csvText(value) {
+  const text = String(value ?? '')
+  const safe = /^[=+\-@]/.test(text) ? `'${text}` : text
+  return /[";\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe
+}
+
 // Gera o CSV com separador ";" e BOM UTF-8, o formato que abre
 // corretamente no Excel em português (acentos e vírgula decimal)
 export function buildCsv(rows, { pair }) {
-  const header = ['Data', 'Par', 'Fechamento', 'Variação (%)']
+  const header = ['Data', 'Par', 'Taxa', 'Variação (%)']
   const lines = rows.map((row) =>
     [
-      formatDate(row.date),
-      pair,
+      csvText(formatDate(row.date)),
+      csvText(pair),
       formatRate(row.rate),
       row.variation == null ? '' : formatNumber(row.variation, 2),
     ].join(';'),
@@ -25,5 +32,5 @@ export function downloadCsv(filename, content) {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  URL.revokeObjectURL(url)
+  setTimeout(() => URL.revokeObjectURL(url), 0)
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Header from './components/Header.jsx'
 import Converter from './components/Converter.jsx'
 import ConvertedHero from './components/ConvertedHero.jsx'
@@ -10,18 +10,37 @@ import { useLocalStorage } from './hooks/useLocalStorage.js'
 import { useTicker } from './hooks/useTicker.js'
 import { useTimeSeries } from './hooks/useTimeSeries.js'
 import { formatDate } from './utils/format.js'
+import { normalizeCurrencyCode, sanitizeFavorites } from './utils/validation.js'
 
 const FREEZE_SECONDS = 60
 
 export default function App() {
   // Lifting state up: o estado compartilhado entre os componentes vive aqui
-  const [from, setFrom] = useLocalStorage('fx:from', 'USD')
-  const [to, setTo] = useLocalStorage('fx:to', 'BRL')
+  const [storedFrom, setFrom] = useLocalStorage('fx:from', 'USD')
+  const [storedTo, setTo] = useLocalStorage('fx:to', 'BRL')
+  const [storedFavorites, setFavorites] = useLocalStorage('fx:favorites', [])
   const [amount, setAmount] = useState('100')
   const [timeframe, setTimeframe] = useState('30d')
-  const [favorites, setFavorites] = useLocalStorage('fx:favorites', [])
   const [frozen, setFrozen] = useState(null)
   const [now, setNow] = useState(() => Date.now())
+
+  const from = normalizeCurrencyCode(storedFrom, 'USD')
+  const to = normalizeCurrencyCode(storedTo, 'BRL')
+  const favorites = useMemo(() => sanitizeFavorites(storedFavorites), [storedFavorites])
+
+  // Corrige valores antigos ou inválidos gravados no localStorage
+  useEffect(() => {
+    if (storedFrom !== from) setFrom(from)
+    if (storedTo !== to) setTo(to)
+  }, [storedFrom, from, storedTo, to, setFrom, setTo])
+
+  // Remove favoritos inválidos ou duplicados que tenham ficado salvos
+  useEffect(() => {
+    const clean = sanitizeFavorites(storedFavorites)
+    if (JSON.stringify(clean) !== JSON.stringify(storedFavorites)) {
+      setFavorites(clean)
+    }
+  }, [storedFavorites, setFavorites])
 
   // Custom hooks de dados
   const { currencies } = useCurrencies()
@@ -62,11 +81,15 @@ export default function App() {
   )
 
   function toggleFavorite() {
-    setFavorites((prev) =>
-      prev.some((favorite) => favorite.from === from && favorite.to === to)
-        ? prev.filter((favorite) => !(favorite.from === from && favorite.to === to))
-        : [...prev, { from, to }].slice(-8),
-    )
+    setFavorites((prev) => {
+      const list = sanitizeFavorites(prev)
+      const exists = list.some(
+        (favorite) => favorite.from === from && favorite.to === to,
+      )
+      return exists
+        ? list.filter((favorite) => !(favorite.from === from && favorite.to === to))
+        : [...list, { from, to }].slice(-8)
+    })
   }
 
   function applyPair(pairFrom, pairTo) {
@@ -109,7 +132,10 @@ export default function App() {
 
       <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {series.error && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-zinc-600/50 bg-zinc-900/70 px-5 py-3.5">
+          <div
+            role="alert"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-zinc-600/50 bg-zinc-900/70 px-5 py-3.5"
+          >
             <p className="text-sm text-zinc-100">
               Não foi possível carregar as cotações da Frankfurter API:{' '}
               <span className="font-mono text-zinc-200">{series.error}</span>
