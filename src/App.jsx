@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Header from './components/Header.jsx'
 import Converter from './components/Converter.jsx'
 import ConvertedHero from './components/ConvertedHero.jsx'
-import Card from './components/Card.jsx'
+import RateChart from './components/RateChart.jsx'
 import { useCurrencies } from './hooks/useCurrencies.js'
 import { useLocalStorage } from './hooks/useLocalStorage.js'
 import { useTicker } from './hooks/useTicker.js'
@@ -15,13 +15,14 @@ export default function App() {
   const [from, setFrom] = useLocalStorage('fx:from', 'USD')
   const [to, setTo] = useLocalStorage('fx:to', 'BRL')
   const [amount, setAmount] = useState('100')
+  const [timeframe, setTimeframe] = useState('30d')
   const [favorites, setFavorites] = useLocalStorage('fx:favorites', [])
   const [frozen, setFrozen] = useState(null)
   const [now, setNow] = useState(() => Date.now())
 
   // Custom hooks de dados
   const { currencies } = useCurrencies()
-  const series = useTimeSeries(from, to, '30d')
+  const series = useTimeSeries(from, to, timeframe)
   const ticker = useTicker()
 
   const currentRate = series.points.length
@@ -146,11 +147,14 @@ export default function App() {
           </div>
 
           <div className="lg:col-span-7 min-w-0">
-            <Card className="p-6 sm:p-7">
-              <p className="text-sm text-slate-400">
-                Gráfico histórico e estatísticas chegam na próxima etapa do projeto.
-              </p>
-            </Card>
+            <RateChart
+              points={series.points}
+              loading={series.loading}
+              from={from}
+              to={to}
+              timeframe={timeframe}
+              onTimeframeChange={setTimeframe}
+            />
           </div>
         </div>
       </main>
