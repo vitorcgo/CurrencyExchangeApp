@@ -1,31 +1,57 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Header from './components/Header.jsx'
 import Converter from './components/Converter.jsx'
 import ConvertedHero from './components/ConvertedHero.jsx'
 import Card from './components/Card.jsx'
+import { useCurrencies } from './hooks/useCurrencies.js'
+import { useLocalStorage } from './hooks/useLocalStorage.js'
+import { useTicker } from './hooks/useTicker.js'
+import { useTimeSeries } from './hooks/useTimeSeries.js'
 
-// Nesta etapa os dados ainda são simulados.
-// O consumo da Frankfurter API entra na próxima etapa.
-const MOCK_TICKER = {
-  loading: false,
-  error: null,
-  items: [
-    { label: 'USD/BRL', rate: 5.412, variation: 0.32 },
-    { label: 'EUR/USD', rate: 1.0875, variation: 0.08 },
-    { label: 'GBP/USD', rate: 1.2994, variation: 0.21 },
-    { label: 'AUD/USD', rate: 0.6682, variation: -0.14 },
-  ],
-}
+const FREEZE_SECONDS = 60
 
 export default function App() {
-  // Lifting state up: o estado compartilhado vive no App e desce via props
+  // Lifting state up: o estado compartilhado entre os componentes vive aqui
+  const [from, setFrom] = useLocalStorage('fx:from', 'USD')
+  const [to, setTo] = useLocalStorage('fx:to', 'BRL')
   const [amount, setAmount] = useState('100')
-  const [from, setFrom] = useState('USD')
-  const [to, setTo] = useState('BRL')
-  const [favorites, setFavorites] = useState([])
+  const [favorites, setFavorites] = useLocalStorage('fx:favorites', [])
+  const [frozen, setFrozen] = useState(null)
+  const [now, setNow] = useState(() => Date.now())
 
-  // Taxa fixa por enquanto; na próxima etapa vem da API
-  const rate = 1
+  // Custom hooks de dados
+  const { currencies } = useCurrencies()
+  const series = useTimeSeries(from, to, '30d')
+  const ticker = useTicker()
+
+  const currentRate = series.points.length
+    ? series.points[series.points.length - 1].rate
+    : null
+  const isFrozen = frozen != null && frozen.until > now
+  const effectiveRate = isFrozen ? frozen.rate : currentRate
+  const frozenSecondsLeft = isFrozen
+    ? Math.max(0, Math.ceil((frozen.until - now) / 1000))
+    : 0
+
+  // Contagem regressiva da taxa congelada (efeito com intervalo)
+  useEffect(() => {
+    if (frozen == null) return undefined
+    const id = setInterval(() => {
+      if (Date.now() >= frozen.until) setFrozen(null)
+      else setNow(Date.now())
+    }, 1000)
+    return () => clearInterval(id)
+  }, [frozen])
+
+  // Trocar de moeda invalida a taxa congelada
+  useEffect(() => {
+    setFrozen(null)
+  }, [from, to])
+
+  // O título da aba acompanha o par selecionado
+  useEffect(() => {
+    document.title = `Currency Exchange · ${from} para ${to}`
+  }, [from, to])
 
   const isFavorite = favorites.some(
     (favorite) => favorite.from === from && favorite.to === to,
@@ -49,27 +75,53 @@ export default function App() {
     setTo(from)
   }
 
+  function toggleFreeze() {
+    if (frozen != null) {
+      setFrozen(null)
+    } else if (currentRate != null) {
+      setFrozen({ rate: currentRate, until: Date.now() + FREEZE_SECONDS * 1000 })
+    }
+  }
+
+  const status = series.error ? 'error' : series.loading ? 'loading' : 'ok'
+
   return (
     <div className="min-h-screen">
       <Header
-        status="loading"
-        latency={null}
-        ticker={MOCK_TICKER}
-        latestDate={null}
-        onRefresh={() => {}}
+        status={status}
+        latency={series.latency}
+        ticker={ticker}
+        latestDate={series.latestDate}
+        onRefresh={series.refetch}
       />
 
       <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {series.error && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-rose-500/30 bg-rose-950/30 px-5 py-3.5">
+            <p className="text-sm text-rose-200">
+              Não foi possível carregar as cotações da Frankfurter API:{' '}
+              <span className="font-mono text-rose-300">{series.error}</span>
+            </p>
+            <button
+              type="button"
+              onClick={series.refetch}
+              className="shrink-0 self-start sm:self-auto px-3.5 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-200 text-xs font-bold hover:bg-rose-500/30 transition"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 min-w-0 space-y-6">
             <ConvertedHero
               amount={amount}
-              rate={rate}
+              rate={effectiveRate}
               from={from}
               to={to}
-              points={[]}
-              isFrozen={false}
-              frozenSecondsLeft={0}
+              points={series.points}
+              isFrozen={isFrozen}
+              frozenSecondsLeft={frozenSecondsLeft}
             />
             <Converter
               amount={amount}
@@ -79,13 +131,13 @@ export default function App() {
               onFromChange={setFrom}
               onToChange={setTo}
               onSwap={swapCurrencies}
-              currencies={null}
-              rate={rate}
-              rateLoading={false}
-              latestDate={null}
-              isFrozen={false}
-              frozenSecondsLeft={0}
-              onToggleFreeze={() => {}}
+              currencies={currencies}
+              rate={effectiveRate}
+              rateLoading={series.loading}
+              latestDate={series.latestDate}
+              isFrozen={isFrozen}
+              frozenSecondsLeft={frozenSecondsLeft}
+              onToggleFreeze={toggleFreeze}
               favorites={favorites}
               isFavorite={isFavorite}
               onToggleFavorite={toggleFavorite}
@@ -93,10 +145,10 @@ export default function App() {
             />
           </div>
 
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 min-w-0">
             <Card className="p-6 sm:p-7">
               <p className="text-sm text-slate-400">
-                Gráfico histórico, estatísticas e tabela de cotações chegam nas próximas etapas.
+                Gráfico histórico e estatísticas chegam na próxima etapa do projeto.
               </p>
             </Card>
           </div>
