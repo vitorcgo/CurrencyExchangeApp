@@ -14,7 +14,7 @@ function MarketBadge() {
 
   return (
     <div
-      className={`hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-sm ${
+      className={`hidden lg:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-sm ${
         isOpen
           ? 'bg-emerald-950/50 border-emerald-500/30 text-emerald-400'
           : 'bg-amber-950/40 border-amber-500/30 text-amber-400'
@@ -35,10 +35,12 @@ function MarketBadge() {
   )
 }
 
-function TickerItem({ label, rate, variation }) {
+function TickerItem({ label, rate, variation, className = '' }) {
   const positive = variation >= 0
   return (
-    <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-900/60 border border-slate-800 text-xs">
+    <div
+      className={`flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-900/60 border border-slate-800 text-xs ${className}`}
+    >
       <span className="font-bold text-slate-300">{label}</span>
       <span className={`font-mono font-semibold ${positive ? 'text-emerald-400' : 'text-rose-400'}`}>
         {formatNumber(rate, 4)}
@@ -74,18 +76,19 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
             </div>
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-nowrap">
-              <h1 className="text-base sm:text-lg font-bold text-white tracking-tight whitespace-nowrap">
+            <div className="flex items-center gap-2 flex-nowrap min-w-0">
+              <h1 className="text-sm sm:text-base lg:text-lg font-bold text-white tracking-tight whitespace-nowrap truncate">
                 Currency Exchange
               </h1>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                Pro Terminal
+              <span className="shrink-0 whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                Pro<span className="hidden sm:inline"> Terminal</span>
               </span>
             </div>
             <p className="text-xs text-slate-400 font-medium flex items-center gap-2 whitespace-nowrap truncate">
-              Taxas de referência do BCE via Frankfurter API
+              <span className="hidden sm:inline">Taxas de referência do BCE via Frankfurter API</span>
+              <span className="sm:hidden">Cotação oficial do BCE</span>
               {latestDate && (
-                <span className="hidden md:inline-flex items-center gap-2">
+                <span className="hidden lg:inline-flex items-center gap-2">
                   <span className="inline-block w-1 h-1 rounded-full bg-slate-600" />
                   <span className="text-slate-500 font-mono text-[11px]">
                     última cotação {formatDate(latestDate)}
@@ -108,7 +111,13 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
           )}
           {!ticker.loading &&
             !ticker.error &&
-            ticker.items.map((item) => <TickerItem key={item.label} {...item} />)}
+            ticker.items.map((item, index) => (
+              <TickerItem
+                key={item.label}
+                {...item}
+                className={index >= 2 ? 'hidden 2xl:flex' : ''}
+              />
+            ))}
         </div>
 
         {/* Status e ações */}
@@ -116,6 +125,7 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
           <MarketBadge />
 
           <div
+            title={STATUS_TEXT[status]}
             className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold ${
               status === 'error'
                 ? 'bg-rose-950/40 border-rose-500/30 text-rose-300'
@@ -135,9 +145,9 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
                 strokeLinejoin="round"
               />
             </svg>
-            <span className="font-mono">{STATUS_TEXT[status]}</span>
+            <span className="font-mono hidden sm:inline">{STATUS_TEXT[status]}</span>
             {status === 'ok' && latency != null && (
-              <span className="font-mono text-[10px] opacity-70">{latency}ms</span>
+              <span className="font-mono text-[10px] opacity-70 hidden sm:inline">{latency}ms</span>
             )}
           </div>
 
