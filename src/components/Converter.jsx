@@ -106,7 +106,7 @@ export default function Converter({
               type="text"
               inputMode="decimal"
               value={amount}
-              onChange={(event) => onAmountChange(event.target.value)}
+              onChange={(event) => onAmountChange(event.target.value.replace(/[^\d.,]/g, ''))}
               placeholder="0,00"
               className="w-full bg-transparent text-white text-xl sm:text-2xl font-bold py-3.5 pl-14 pr-4 border-none focus:ring-0 focus:outline-none font-mono placeholder:text-slate-600"
             />
