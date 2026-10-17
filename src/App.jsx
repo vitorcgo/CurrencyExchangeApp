@@ -83,8 +83,16 @@ export default function App() {
     if (frozen != null) {
       setFrozen(null)
     } else if (currentRate != null) {
-      setFrozen({ rate: currentRate, until: Date.now() + FREEZE_SECONDS * 1000 })
+      const startedAt = Date.now()
+      setNow(startedAt)
+      setFrozen({ rate: currentRate, until: startedAt + FREEZE_SECONDS * 1000 })
     }
+  }
+
+  // O botão de atualizar renova a série do par e também o ticker
+  function handleRefresh() {
+    series.refetch()
+    ticker.refetch()
   }
 
   const status = series.error ? 'error' : series.loading ? 'loading' : 'ok'
@@ -96,7 +104,7 @@ export default function App() {
         latency={series.latency}
         ticker={ticker}
         latestDate={series.latestDate}
-        onRefresh={series.refetch}
+        onRefresh={handleRefresh}
       />
 
       <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">

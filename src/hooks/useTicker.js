@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getTimeSeries } from '../api/frankfurter.js'
 import { isoDaysAgo, todayISO } from '../utils/dates.js'
 
@@ -28,16 +28,20 @@ function buildItems(rates) {
 
 export function useTicker() {
   const [state, setState] = useState({ items: [], loading: true, error: null })
+  const [reloadKey, setReloadKey] = useState(0)
+
+  const refetch = useCallback(() => setReloadKey((key) => key + 1), [])
 
   useEffect(() => {
     const controller = new AbortController()
+    setState((prev) => ({ ...prev, loading: true, error: null }))
 
     async function load() {
       try {
         const { data } = await getTimeSeries({
           base: 'USD',
           symbols: TICKER_PAIRS.map((pair) => pair.code).join(','),
-          start: isoDaysAgo(7),
+          start: isoDaysAgo(10),
           end: todayISO(),
           signal: controller.signal,
         })
@@ -50,7 +54,7 @@ export function useTicker() {
 
     load()
     return () => controller.abort()
-  }, [])
+  }, [reloadKey])
 
-  return state
+  return { ...state, refetch }
 }
