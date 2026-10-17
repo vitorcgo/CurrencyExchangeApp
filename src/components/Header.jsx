@@ -16,17 +16,17 @@ function MarketBadge() {
     <div
       className={`hidden lg:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-sm ${
         isOpen
-          ? 'bg-emerald-950/50 border-emerald-500/30 text-emerald-400'
-          : 'bg-amber-950/40 border-amber-500/30 text-amber-400'
+          ? 'bg-green-950/50 border-green-500/30 text-green-400'
+          : 'bg-zinc-800/60 border-zinc-600/50 text-zinc-300'
       }`}
     >
       <span className="relative flex h-2 w-2">
         {isOpen && (
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
         )}
         <span
           className={`relative inline-flex rounded-full h-2 w-2 ${
-            isOpen ? 'bg-emerald-500' : 'bg-amber-500'
+            isOpen ? 'bg-green-500' : 'bg-zinc-400'
           }`}
         />
       </span>
@@ -39,13 +39,13 @@ function TickerItem({ label, rate, variation, className = '' }) {
   const positive = variation >= 0
   return (
     <div
-      className={`flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2.5 py-1 rounded-lg bg-slate-900/60 border border-slate-800 text-xs ${className}`}
+      className={`flex items-center gap-1.5 shrink-0 whitespace-nowrap px-2.5 py-1 rounded-lg bg-zinc-900/60 border border-zinc-800 text-xs ${className}`}
     >
-      <span className="font-bold text-slate-300">{label}</span>
-      <span className={`font-mono font-semibold ${positive ? 'text-emerald-400' : 'text-rose-400'}`}>
+      <span className="font-bold text-zinc-300">{label}</span>
+      <span className={`font-mono font-semibold ${positive ? 'text-green-400' : 'text-zinc-200'}`}>
         {formatNumber(rate, 4)}
       </span>
-      <span className={`text-[10px] font-mono ${positive ? 'text-emerald-400/90' : 'text-rose-400/90'}`}>
+      <span className={`text-[10px] font-mono ${positive ? 'text-green-400/90' : 'text-zinc-300/90'}`}>
         {formatSignedPercent(variation)}
       </span>
     </div>
@@ -54,14 +54,14 @@ function TickerItem({ label, rate, variation, className = '' }) {
 
 export default function Header({ status, latency, ticker, latestDate, onRefresh }) {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-panel/90 backdrop-blur-xl shadow-2xl">
+    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-panel/90 backdrop-blur-xl shadow-2xl">
       <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-3 lg:gap-4">
         {/* Marca */}
         <div className="flex items-center gap-3.5 min-w-0">
-          <div className="relative w-11 h-11 rounded-2xl ring-1 ring-cyan-500/40 p-0.5 bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-950/50">
+          <div className="relative w-11 h-11 rounded-2xl ring-1 ring-green-500/40 p-0.5 bg-gradient-to-tr from-green-600 via-green-500 to-green-400 flex items-center justify-center shadow-lg shadow-green-950/50">
             <div className="w-full h-full bg-obsidian rounded-[14px] flex items-center justify-center">
               <svg
-                className="w-6 h-6 text-cyan-400 drop-shadow-[0_0_8px_rgba(0,229,255,0.6)]"
+                className="w-6 h-6 text-green-400 drop-shadow-[0_0_8px_rgba(34,197,94,0.6)]"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.2"
@@ -80,17 +80,17 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
               <h1 className="text-sm sm:text-base lg:text-lg font-bold text-white tracking-tight whitespace-nowrap truncate">
                 Currency Exchange
               </h1>
-              <span className="shrink-0 whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+              <span className="shrink-0 whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/30">
                 Pro<span className="hidden sm:inline"> Terminal</span>
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-medium flex items-center gap-2 whitespace-nowrap truncate">
+            <p className="text-xs text-zinc-400 font-medium flex items-center gap-2 whitespace-nowrap truncate">
               <span className="hidden sm:inline">Taxas de referência do BCE via Frankfurter API</span>
               <span className="sm:hidden">Cotação oficial do BCE</span>
               {latestDate && (
                 <span className="hidden lg:inline-flex items-center gap-2">
-                  <span className="inline-block w-1 h-1 rounded-full bg-slate-600" />
-                  <span className="text-slate-500 font-mono text-[11px]">
+                  <span className="inline-block w-1 h-1 rounded-full bg-zinc-600" />
+                  <span className="text-zinc-500 font-mono text-[11px]">
                     última cotação {formatDate(latestDate)}
                   </span>
                 </span>
@@ -100,14 +100,14 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
         </div>
 
         {/* Ticker ao vivo, apenas em telas largas */}
-        <div className="hidden xl:flex items-center gap-2 shrink-0 overflow-hidden bg-subcard/80 border border-slate-800/90 rounded-2xl px-3 py-1.5 shadow-inner">
+        <div className="hidden xl:flex items-center gap-2 shrink-0 overflow-hidden bg-subcard/80 border border-zinc-800/90 rounded-2xl px-3 py-1.5 shadow-inner">
           {ticker.loading && (
-            <span className="text-xs text-slate-500 font-mono px-2 animate-pulse">
+            <span className="text-xs text-zinc-500 font-mono px-2 animate-pulse">
               carregando cotações...
             </span>
           )}
           {!ticker.loading && ticker.error && (
-            <span className="text-xs text-slate-500 font-mono px-2">ticker indisponível</span>
+            <span className="text-xs text-zinc-500 font-mono px-2">ticker indisponível</span>
           )}
           {!ticker.loading &&
             !ticker.error &&
@@ -128,8 +128,8 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
             title={STATUS_TEXT[status]}
             className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold ${
               status === 'error'
-                ? 'bg-rose-950/40 border-rose-500/30 text-rose-300'
-                : 'bg-[#0c1626] border-cyan-500/20 text-cyan-300'
+                ? 'bg-zinc-900 border-zinc-600/50 text-zinc-200'
+                : 'bg-[#111111] border-green-500/20 text-green-300'
             }`}
           >
             <svg
@@ -156,7 +156,7 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
             onClick={onRefresh}
             aria-label="Atualizar cotações"
             title="Atualizar cotações"
-            className="p-2 rounded-xl bg-subcard border border-slate-800 text-slate-400 hover:text-cyan-400 hover:border-cyan-500/40 transition"
+            className="p-2 rounded-xl bg-subcard border border-zinc-800 text-zinc-400 hover:text-green-400 hover:border-green-500/40 transition"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <polyline points="23 4 23 10 17 10" strokeLinecap="round" strokeLinejoin="round" />

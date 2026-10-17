@@ -135,27 +135,27 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
   return (
     <Card className="p-5 sm:p-7" data-purpose="historico-chart">
       {/* Controles */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-800/70">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-zinc-800/70">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="shrink-0 px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-500/30 text-xs font-bold text-emerald-400 uppercase font-mono leading-none">
+          <div className="shrink-0 px-3 py-1.5 rounded-xl bg-green-950/60 border border-green-500/30 text-xs font-bold text-green-400 uppercase font-mono leading-none">
             {from} / {to}
           </div>
           <div className="min-w-0">
             <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2 flex-wrap">
               Histórico {from} / {to}
               {from === to && (
-                <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-normal">
+                <span className="text-xs px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-normal">
                   Paridade 1:1
                 </span>
               )}
             </h3>
-            <p className="text-xs text-slate-400 font-mono mt-0.5 truncate">
+            <p className="text-xs text-zinc-400 font-mono mt-0.5 truncate">
               SMA(20): {formatRate(model?.sma20Last)} | SMA(50): {formatRate(model?.sma50Last)}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center bg-subcard border border-slate-800 rounded-xl p-1 text-xs font-semibold text-slate-400 font-mono overflow-x-auto max-w-full shrink-0">
+        <div className="flex items-center bg-subcard border border-zinc-800 rounded-xl p-1 text-xs font-semibold text-zinc-400 font-mono overflow-x-auto max-w-full shrink-0">
           {TIMEFRAMES.map((item) => (
             <button
               key={item.id}
@@ -163,7 +163,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
               onClick={() => onTimeframeChange(item.id)}
               className={`shrink-0 px-2.5 py-1 rounded-lg transition border ${
                 timeframe === item.id
-                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30 shadow-sm'
+                  ? 'bg-green-500/20 text-green-300 border-green-500/30 shadow-sm'
                   : 'border-transparent hover:text-white'
               }`}
             >
@@ -177,8 +177,8 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
       <div className="pt-4">
         <div ref={containerRef} className="relative w-full" style={{ height }}>
           {!geometry ? (
-            <div className="w-full h-full rounded-2xl bg-[#080d17]/50 border border-slate-800/50 flex items-center justify-center">
-              <span className="text-xs font-mono text-slate-500 animate-pulse">
+            <div className="w-full h-full rounded-2xl bg-[#0a0a0a]/50 border border-zinc-800/50 flex items-center justify-center">
+              <span className="text-xs font-mono text-zinc-500 animate-pulse">
                 {loading ? 'carregando série histórica...' : 'sem dados para exibir'}
               </span>
             </div>
@@ -186,16 +186,16 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
             <>
               {activePoint && (
                 <div
-                  className="absolute top-2 z-20 pointer-events-none -translate-x-1/2 bg-[#09111d]/95 border border-cyan-500/40 rounded-xl px-3 py-1.5 shadow-xl shadow-cyan-950/60 backdrop-blur-md flex items-center gap-2 sm:gap-3"
+                  className="absolute top-2 z-20 pointer-events-none -translate-x-1/2 bg-[#111111]/95 border border-green-500/40 rounded-xl px-3 py-1.5 shadow-xl shadow-green-950/60 backdrop-blur-md flex items-center gap-2 sm:gap-3"
                   style={{ left: tooltipX }}
                 >
-                  <span className="text-[11px] font-mono text-slate-400 whitespace-nowrap">
+                  <span className="text-[11px] font-mono text-zinc-400 whitespace-nowrap">
                     {formatDate(activePoint.date)}
                     {activeIndex === points.length - 1 && (
-                      <span className="text-cyan-400"> · atual</span>
+                      <span className="text-green-400"> · atual</span>
                     )}
                   </span>
-                  <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-cyan-400" />
+                  <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-green-400" />
                   <span className="text-xs font-mono font-bold text-white whitespace-nowrap">
                     {formatRate(activePoint.rate)} {to}
                   </span>
@@ -203,8 +203,8 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                     <span
                       className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded whitespace-nowrap ${
                         activeVariation >= 0
-                          ? 'text-emerald-400 bg-emerald-950/80'
-                          : 'text-rose-400 bg-rose-950/80'
+                          ? 'text-green-400 bg-green-950/80'
+                          : 'text-zinc-200 bg-zinc-800/80'
                       }`}
                     >
                       {formatSignedPercent(activeVariation)}
@@ -222,9 +222,9 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
               >
                 <defs>
                   <linearGradient id="chart-area-gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#00f2fe" stopOpacity="0.32" />
-                    <stop offset="45%" stopColor="#10b981" stopOpacity="0.18" />
-                    <stop offset="100%" stopColor="#070b12" stopOpacity="0" />
+                    <stop offset="0%" stopColor="#22c55e" stopOpacity="0.32" />
+                    <stop offset="45%" stopColor="#16a34a" stopOpacity="0.18" />
+                    <stop offset="100%" stopColor="#050505" stopOpacity="0" />
                   </linearGradient>
                   <filter id="chart-line-glow" x="-20%" y="-20%" width="140%" height="140%">
                     <feGaussianBlur stdDeviation="3" result="blur" />
@@ -244,7 +244,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                         x2={geometry.plotWidth}
                         y1={geometry.yAt(tick)}
                         y2={geometry.yAt(tick)}
-                        stroke="#1e293b"
+                        stroke="#2a2a2a"
                         strokeOpacity="0.6"
                         strokeDasharray="4 6"
                       />
@@ -253,7 +253,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                         y={geometry.yAt(tick) + 4}
                         textAnchor="end"
                         fontSize={compact ? 10 : 11}
-                        className="fill-slate-500 font-mono"
+                        className="fill-zinc-500 font-mono"
                       >
                         {formatAxisValue(tick)}
                       </text>
@@ -268,7 +268,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                         x2={geometry.xAt(index)}
                         y1="0"
                         y2={geometry.plotHeight}
-                        stroke="#1e293b"
+                        stroke="#2a2a2a"
                         strokeOpacity="0.35"
                         strokeDasharray="4 6"
                       />
@@ -283,7 +283,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                               : 'middle'
                         }
                         fontSize={compact ? 10 : 11}
-                        className="fill-slate-500 font-mono"
+                        className="fill-zinc-500 font-mono"
                       >
                         {formatDateShort(points[index]?.date)}
                       </text>
@@ -298,7 +298,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                     <path
                       d={geometry.smaPath}
                       fill="none"
-                      stroke="#10b981"
+                      stroke="#a1a1aa"
                       strokeOpacity="0.55"
                       strokeWidth="1.5"
                       strokeDasharray="5 4"
@@ -309,7 +309,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                   <path
                     d={geometry.linePath}
                     fill="none"
-                    stroke="#00f2fe"
+                    stroke="#22c55e"
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -324,7 +324,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                         x2={geometry.xAt(activeIndex)}
                         y1="0"
                         y2={geometry.plotHeight}
-                        stroke="#00e5ff"
+                        stroke="#22c55e"
                         strokeOpacity="0.35"
                         strokeDasharray="4 4"
                       />
@@ -332,8 +332,8 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                         cx={geometry.xAt(activeIndex)}
                         cy={geometry.yAt(activePoint.rate)}
                         r="4.5"
-                        fill="#00f2fe"
-                        stroke="#080e1a"
+                        fill="#22c55e"
+                        stroke="#0a0a0a"
                         strokeWidth="2"
                       />
                     </>

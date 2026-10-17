@@ -109,15 +109,15 @@ export default function App() {
 
       <main className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {series.error && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-rose-500/30 bg-rose-950/30 px-5 py-3.5">
-            <p className="text-sm text-rose-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-zinc-600/50 bg-zinc-900/70 px-5 py-3.5">
+            <p className="text-sm text-zinc-100">
               Não foi possível carregar as cotações da Frankfurter API:{' '}
-              <span className="font-mono text-rose-300">{series.error}</span>
+              <span className="font-mono text-zinc-200">{series.error}</span>
             </p>
             <button
               type="button"
               onClick={series.refetch}
-              className="shrink-0 self-start sm:self-auto px-3.5 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-200 text-xs font-bold hover:bg-rose-500/30 transition"
+              className="shrink-0 self-start sm:self-auto px-3.5 py-1.5 rounded-xl bg-zinc-100/10 border border-zinc-500/40 text-zinc-100 text-xs font-bold hover:bg-zinc-100/20 transition"
             >
               Tentar novamente
             </button>
@@ -180,13 +180,13 @@ export default function App() {
       </main>
 
       <footer className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 pb-8 pt-2">
-        <p className="text-center text-xs text-slate-500">
+        <p className="text-center text-xs text-zinc-500">
           Projeto didático de React com Vite. Dados: Frankfurter API (taxas de referência do BCE).
           {series.latestDate && (
             <>
               {' '}
               Última cotação oficial:{' '}
-              <span className="font-mono text-slate-400">{formatDate(series.latestDate)}</span>.
+              <span className="font-mono text-zinc-400">{formatDate(series.latestDate)}</span>.
             </>
           )}
         </p>

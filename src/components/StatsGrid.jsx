@@ -11,16 +11,16 @@ import {
 import { formatDate, formatNumber, formatRate, formatSignedPercent } from '../utils/format.js'
 
 const TREND_TONES = {
-  up: 'text-emerald-400',
-  down: 'text-rose-400',
-  flat: 'text-slate-300',
+  up: 'text-green-400',
+  down: 'text-zinc-200',
+  flat: 'text-zinc-300',
 }
 
 const VOLATILITY_TONES = {
-  low: 'text-emerald-400',
-  mid: 'text-amber-400',
-  high: 'text-rose-400',
-  flat: 'text-slate-300',
+  low: 'text-green-400',
+  mid: 'text-zinc-300',
+  high: 'text-zinc-100',
+  flat: 'text-zinc-300',
 }
 
 function TrendArrow({ direction }) {
@@ -54,19 +54,19 @@ export default function StatsGrid({ points, from, to }) {
 
   return (
     <Card className="p-5 sm:p-7" data-purpose="painel-estatisticas">
-      <h3 className="text-sm font-bold tracking-wide text-white flex items-center gap-2 pb-4 mb-4 border-b border-slate-800/60">
-        <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <h3 className="text-sm font-bold tracking-wide text-white flex items-center gap-2 pb-4 mb-4 border-b border-zinc-800/60">
+        <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path d="M18 20V10M12 20V4M6 20v-6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         Análise do período
-        <span className="font-mono text-xs text-slate-400">
+        <span className="font-mono text-xs text-zinc-400">
           {from} / {to}
         </span>
       </h3>
 
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
-        <div className="bg-[#09111c] p-3 rounded-2xl border border-slate-800/80">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-[#111111] p-3 rounded-2xl border border-zinc-800/80">
+          <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
             Tendência técnica
           </span>
           <span
@@ -82,8 +82,8 @@ export default function StatsGrid({ points, from, to }) {
           </span>
         </div>
 
-        <div className="bg-[#09111c] p-3 rounded-2xl border border-slate-800/80">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-[#111111] p-3 rounded-2xl border border-zinc-800/80">
+          <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
             Volatilidade diária
           </span>
           <span className={`text-sm font-bold font-mono mt-1 block ${VOLATILITY_TONES[stats.volLabel.tone]}`}>
@@ -92,23 +92,23 @@ export default function StatsGrid({ points, from, to }) {
           </span>
         </div>
 
-        <div className="bg-[#09111c] p-3 rounded-2xl border border-slate-800/80">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-[#111111] p-3 rounded-2xl border border-zinc-800/80">
+          <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
             Mínimo do período
           </span>
-          <span className="text-sm font-bold font-mono text-slate-300 mt-1 block">
+          <span className="text-sm font-bold font-mono text-zinc-300 mt-1 block">
             {formatRate(stats.min)}
           </span>
         </div>
 
-        <div className="bg-[#09111c] p-3 rounded-2xl border border-slate-800/80">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div className="bg-[#111111] p-3 rounded-2xl border border-zinc-800/80">
+          <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">
             Última cotação
           </span>
-          <span className="text-sm font-bold font-mono text-cyan-300 mt-1 block">
+          <span className="text-sm font-bold font-mono text-green-300 mt-1 block">
             {formatRate(last?.rate)}
             {last && (
-              <span className="text-xs font-normal text-slate-500"> em {formatDate(last.date)}</span>
+              <span className="text-xs font-normal text-zinc-500"> em {formatDate(last.date)}</span>
             )}
           </span>
         </div>

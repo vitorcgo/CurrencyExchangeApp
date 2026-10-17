@@ -74,7 +74,7 @@ src/
     csv.js                  geração e download do CSV
   App.jsx                   estado compartilhado (lifting state up)
   main.jsx                  ponto de entrada
-  index.css                 tema do terminal (tokens do Tailwind)
+  index.css                 tema cinza chumbo, preto e verde (tokens do Tailwind)
 ```
 
 ## API utilizada

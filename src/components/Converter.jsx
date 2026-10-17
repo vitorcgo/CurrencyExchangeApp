@@ -18,7 +18,7 @@ const QUICK_PAIRS = [
 
 function Chevron() {
   return (
-    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400">
+    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-zinc-400">
       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
       </svg>
@@ -73,17 +73,17 @@ export default function Converter({
 
   return (
     <section
-      className="rounded-3xl bg-card/90 border border-slate-800/90 p-5 sm:p-7 shadow-xl shadow-glass backdrop-blur-md"
+      className="rounded-3xl bg-card/90 border border-zinc-800/90 p-5 sm:p-7 shadow-xl shadow-glass backdrop-blur-md"
       data-purpose="calculadora-cambio"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800/60">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-zinc-800/60">
         <h3 className="text-sm font-bold tracking-wide text-white flex items-center gap-2">
-          <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M3 6h18M3 12h18m-7 6h7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           Calculadora de Câmbio Instantâneo
         </h3>
-        <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/40 border border-emerald-500/20 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+        <span className="text-[11px] font-mono text-green-400 bg-green-950/40 border border-green-500/20 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
           Sem taxa adicional
         </span>
       </div>
@@ -92,13 +92,13 @@ export default function Converter({
         {/* Valor a converter */}
         <div>
           <label
-            className="block text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-2"
+            className="block text-[11px] font-bold tracking-wider text-zinc-400 uppercase mb-2"
             htmlFor="amount-input"
           >
             Valor a converter
           </label>
-          <div className="relative rounded-2xl border border-slate-700/80 bg-subcard hover:border-cyan-500/50 transition-all focus-within:ring-2 focus-within:ring-cyan-500/40 focus-within:border-cyan-400 shadow-inner">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-mono font-bold text-lg select-none">
+          <div className="relative rounded-2xl border border-zinc-700/80 bg-subcard hover:border-green-500/50 transition-all focus-within:ring-2 focus-within:ring-green-500/40 focus-within:border-green-400 shadow-inner">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-mono font-bold text-lg select-none">
               {currencyPrefix(from)}
             </div>
             <input
@@ -108,17 +108,17 @@ export default function Converter({
               value={amount}
               onChange={(event) => onAmountChange(event.target.value.replace(/[^\d.,]/g, ''))}
               placeholder="0,00"
-              className="w-full bg-transparent text-white text-xl sm:text-2xl font-bold py-3.5 pl-14 pr-4 border-none focus:ring-0 focus:outline-none font-mono placeholder:text-slate-600"
+              className="w-full bg-transparent text-white text-xl sm:text-2xl font-bold py-3.5 pl-14 pr-4 border-none focus:ring-0 focus:outline-none font-mono placeholder:text-zinc-600"
             />
           </div>
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-2.5">
-            <span className="text-[10px] text-slate-400 uppercase font-semibold">Atalhos:</span>
+            <span className="text-[10px] text-zinc-400 uppercase font-semibold">Atalhos:</span>
             {PRESETS.map((preset) => (
               <button
                 key={preset}
                 type="button"
                 onClick={() => onAmountChange(String(preset))}
-                className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-subcard border border-slate-800 hover:border-cyan-500/40 text-xs font-mono text-slate-300 hover:text-white transition"
+                className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-subcard border border-zinc-800 hover:border-green-500/40 text-xs font-mono text-zinc-300 hover:text-white transition"
               >
                 {currencyPrefix(from)}
                 {formatNumber(preset, 0)}
@@ -131,7 +131,7 @@ export default function Converter({
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 items-center pt-1">
           <div>
             <label
-              className="block text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-1.5"
+              className="block text-[11px] font-bold tracking-wider text-zinc-400 uppercase mb-1.5"
               htmlFor="from-currency"
             >
               De (origem)
@@ -141,7 +141,7 @@ export default function Converter({
                 id="from-currency"
                 value={from}
                 onChange={(event) => onFromChange(event.target.value)}
-                className="w-full appearance-none rounded-2xl bg-subcard border border-slate-700/80 text-white font-medium py-3.5 pl-4 pr-10 text-sm focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-400 cursor-pointer shadow-inner"
+                className="w-full appearance-none rounded-2xl bg-subcard border border-zinc-700/80 text-white font-medium py-3.5 pl-4 pr-10 text-sm focus:ring-2 focus:ring-green-500/40 focus:border-green-400 cursor-pointer shadow-inner"
               >
                 {options.map((option) => (
                   <option key={option.code} value={option.code}>
@@ -159,7 +159,7 @@ export default function Converter({
               aria-label="Inverter moedas"
               title="Inverter moedas"
               onClick={onSwap}
-              className="w-12 h-12 rounded-2xl bg-[#0d1d2b] border border-cyan-500/30 hover:border-cyan-400 text-cyan-400 hover:text-white flex items-center justify-center transition-all duration-300 shadow-md shadow-cyan-950/40 hover:scale-105 active:scale-95 group"
+              className="w-12 h-12 rounded-2xl bg-[#1f1f1f] border border-green-500/30 hover:border-green-400 text-green-400 hover:text-white flex items-center justify-center transition-all duration-300 shadow-md shadow-green-950/40 hover:scale-105 active:scale-95 group"
             >
               <svg
                 className="w-5 h-5 transition-transform duration-300 group-hover:rotate-180"
@@ -179,7 +179,7 @@ export default function Converter({
 
           <div>
             <label
-              className="block text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-1.5"
+              className="block text-[11px] font-bold tracking-wider text-zinc-400 uppercase mb-1.5"
               htmlFor="to-currency"
             >
               Para (destino)
@@ -189,7 +189,7 @@ export default function Converter({
                 id="to-currency"
                 value={to}
                 onChange={(event) => onToChange(event.target.value)}
-                className="w-full appearance-none rounded-2xl bg-subcard border border-slate-700/80 text-white font-medium py-3.5 pl-4 pr-10 text-sm focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-400 cursor-pointer shadow-inner"
+                className="w-full appearance-none rounded-2xl bg-subcard border border-zinc-700/80 text-white font-medium py-3.5 pl-4 pr-10 text-sm focus:ring-2 focus:ring-green-500/40 focus:border-green-400 cursor-pointer shadow-inner"
               >
                 {options.map((option) => (
                   <option key={option.code} value={option.code}>
@@ -204,7 +204,7 @@ export default function Converter({
 
         {/* Pares rápidos e favoritos */}
         <div className="flex items-center gap-1.5 flex-wrap pt-1">
-          <span className="text-[10px] uppercase font-bold text-slate-400 mr-1">Rápido:</span>
+          <span className="text-[10px] uppercase font-bold text-zinc-400 mr-1">Rápido:</span>
           {QUICK_PAIRS.map(([pairFrom, pairTo]) => {
             const active = from === pairFrom && to === pairTo
             return (
@@ -214,8 +214,8 @@ export default function Converter({
                 onClick={() => onApplyPair(pairFrom, pairTo)}
                 className={`whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-bold border transition ${
                   active
-                    ? 'bg-[#0c1828] border-cyan-500/40 text-cyan-300'
-                    : 'bg-subcard border-slate-800 text-slate-400 hover:text-white hover:border-slate-600'
+                    ? 'bg-[#1a1a1a] border-green-500/40 text-green-300'
+                    : 'bg-subcard border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600'
                 }`}
               >
                 {pairFrom} / {pairTo}
@@ -226,7 +226,7 @@ export default function Converter({
 
         {favorites.length > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[10px] uppercase font-bold text-slate-400 mr-1">Favoritos:</span>
+            <span className="text-[10px] uppercase font-bold text-zinc-400 mr-1">Favoritos:</span>
             {favorites.map((favorite) => {
               const active = from === favorite.from && to === favorite.to
               return (
@@ -236,8 +236,8 @@ export default function Converter({
                   onClick={() => onApplyPair(favorite.from, favorite.to)}
                   className={`whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-bold border transition ${
                     active
-                      ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
-                      : 'bg-subcard border-slate-800 text-slate-400 hover:text-white hover:border-slate-600'
+                      ? 'bg-green-950/60 border-green-500/40 text-green-300'
+                      : 'bg-subcard border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600'
                   }`}
                 >
                   {favorite.from} / {favorite.to}
@@ -248,19 +248,19 @@ export default function Converter({
         )}
 
         {/* Taxa atual e data da cotação */}
-        <div className="p-3 rounded-2xl bg-[#09101c] border border-slate-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 text-xs">
+        <div className="p-3 rounded-2xl bg-[#111111] border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 text-xs">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-slate-400 font-semibold tracking-wider uppercase text-[10px]">
+            <span className="text-zinc-400 font-semibold tracking-wider uppercase text-[10px]">
               Taxa atual
             </span>
-            <span className="inline-flex items-center font-bold font-mono px-2.5 py-1 rounded-lg bg-[#111c2e] border border-cyan-500/20 text-cyan-300">
+            <span className="inline-flex items-center font-bold font-mono px-2.5 py-1 rounded-lg bg-[#1f1f1f] border border-green-500/20 text-green-300">
               1 {from} = {formatRate(rate)} {to}
             </span>
             {from === to && (
-              <span className="text-[10px] font-mono text-slate-500">paridade 1:1</span>
+              <span className="text-[10px] font-mono text-zinc-500">paridade 1:1</span>
             )}
           </div>
-          <span className="text-slate-400 font-medium font-mono text-[11px] whitespace-nowrap">
+          <span className="text-zinc-400 font-medium font-mono text-[11px] whitespace-nowrap">
             {latestDate
               ? `Cotação de ${formatDate(latestDate)}`
               : rateLoading
@@ -277,8 +277,8 @@ export default function Converter({
             disabled={rateLoading && !isFrozen}
             className={`flex-1 py-4 px-4 sm:px-6 rounded-2xl font-extrabold text-xs sm:text-sm uppercase tracking-wide sm:tracking-wider whitespace-nowrap flex items-center justify-center gap-2 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 ${
               isFrozen
-                ? 'bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white shadow-lg shadow-emerald-500/25'
-                : 'bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 shadow-lg shadow-cyan-500/25'
+                ? 'bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white shadow-lg shadow-green-500/25'
+                : 'bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-zinc-950 shadow-lg shadow-green-500/25'
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -298,8 +298,8 @@ export default function Converter({
             title={isFavorite ? 'Remover dos favoritos' : 'Salvar par nos favoritos'}
             className={`shrink-0 p-4 rounded-2xl border transition ${
               isFavorite
-                ? 'bg-amber-500/10 border-amber-500/40 text-amber-400'
-                : 'bg-subcard border-slate-800 text-slate-400 hover:text-amber-300 hover:border-amber-500/40'
+                ? 'bg-green-500/10 border-green-500/40 text-green-400'
+                : 'bg-subcard border-zinc-800 text-zinc-400 hover:text-green-300 hover:border-green-500/40'
             }`}
           >
             <StarIcon filled={isFavorite} />
