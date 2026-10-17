@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+/* ===== Design tokens do "Pro Terminal" (Tailwind CSS v4) ===== */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-obsidian: #070b12;
+  --color-panel: #080d16;
+  --color-card: #0b121e;
+  --color-subcard: #0e1624;
+
+  --color-neon: #00e5ff;
+  --color-neon-strong: #00f2fe;
+  --color-mint: #00f5a0;
+
+  --shadow-neon: 0 0 25px -4px rgba(0, 242, 254, 0.28);
+  --shadow-neon-emerald: 0 0 25px -4px rgba(16, 185, 129, 0.25);
+  --shadow-glass: inset 0 1px 1px 0 rgba(255, 255, 255, 0.06);
+
+  --animate-glow: pulseGlow 3s ease-in-out infinite;
+
+  @keyframes pulseGlow {
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+}
+
+/* ===== Estilos globais ===== */
+body {
+  background-color: #070b12;
+  color: #e2e8f0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(at 15% 15%, rgba(0, 229, 255, 0.04) 0px, transparent 40%),
+    radial-gradient(at 85% 20%, rgba(16, 185, 129, 0.04) 0px, transparent 45%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    100% 100%,
+    40px 40px,
+    40px 40px;
+}
+
+::selection {
+  background: rgba(0, 229, 255, 0.2);
+  color: #67e8f9;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #080d16;
+}
+::-webkit-scrollbar-thumb {
+  background: #1c2a3f;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3d5b;
+}
+
+/* Dropdowns nativos em tema escuro */
+select option {
+  background-color: #0b121e;
+  color: #e2e8f0;
+}
