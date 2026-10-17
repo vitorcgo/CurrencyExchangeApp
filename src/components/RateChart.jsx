@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Card from './Card.jsx'
 import { useElementWidth } from '../hooks/useElementWidth.js'
 import { sma } from '../utils/stats.js'
@@ -16,15 +16,32 @@ const PAD_TOP = 14
 const PAD_BOTTOM = 26
 const PAD_RIGHT = 14
 
+// Rótulos curtos para o eixo Y: valores muito pequenos viram
+// notação científica para não invadir a área do gráfico
+function formatAxisValue(value) {
+  if (value == null || Number.isNaN(value)) return '-'
+  const abs = Math.abs(value)
+  if (abs !== 0 && abs < 0.01) {
+    return value.toExponential(2).replace('.', ',')
+  }
+  return formatRate(value)
+}
+
 export default function RateChart({ points, loading, from, to, timeframe, onTimeframeChange }) {
   const containerRef = useRef(null)
   const width = useElementWidth(containerRef)
   const [hoverIndex, setHoverIndex] = useState(null)
 
+  // Reinicia o destaque quando a série muda (troca de par ou período),
+  // senão o índice antigo pode apontar para fora da nova lista
+  useEffect(() => {
+    setHoverIndex(null)
+  }, [points])
+
   // Ajustes de responsividade a partir da largura medida
   const compact = width > 0 && width < 640
   const height = compact ? HEIGHT_MOBILE : HEIGHT_DESKTOP
-  const padLeft = compact ? 50 : 64
+  const padLeft = compact ? 58 : 64
 
   const model = useMemo(() => {
     if (!points.length) return null
@@ -238,7 +255,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                         fontSize={compact ? 10 : 11}
                         className="fill-slate-500 font-mono"
                       >
-                        {formatRate(tick)}
+                        {formatAxisValue(tick)}
                       </text>
                     </g>
                   ))}
