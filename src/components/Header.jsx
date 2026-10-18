@@ -23,7 +23,39 @@ function TickerItem({ label, rate, variation, className = '' }) {
   )
 }
 
-export default function Header({ status, latency, ticker, latestDate, onRefresh }) {
+function SunIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4" />
+      <path
+        d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3l1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3l1.42-1.42"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function MoonIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path
+        d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export default function Header({
+  status,
+  latency,
+  ticker,
+  latestDate,
+  onRefresh,
+  theme,
+  onToggleTheme,
+}) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-panel">
       <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-3 lg:gap-4">
@@ -49,8 +81,8 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
               <h1 className="text-sm sm:text-base lg:text-lg font-bold text-white tracking-tight whitespace-nowrap truncate">
                 Currency Exchange
               </h1>
-              <span className="shrink-0 whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/30">
-                Pro<span className="hidden sm:inline"> Terminal</span>
+              <span className="hidden sm:inline-flex shrink-0 whitespace-nowrap px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/30">
+                Pro Terminal
               </span>
             </div>
             <p className="text-xs text-zinc-400 font-medium flex items-center gap-2 whitespace-nowrap truncate">
@@ -94,6 +126,7 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <div
             role="status"
+            aria-label={STATUS_TEXT[status]}
             title={STATUS_TEXT[status]}
             className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold ${
               status === 'error'
@@ -119,6 +152,16 @@ export default function Header({ status, latency, ticker, latestDate, onRefresh 
               <span className="font-mono text-[10px] opacity-70 hidden sm:inline">{latency}ms</span>
             )}
           </div>
+
+          <button
+            type="button"
+            onClick={onToggleTheme}
+            aria-label={theme === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'}
+            title={theme === 'light' ? 'Ativar tema escuro' : 'Ativar tema claro'}
+            className="p-2 rounded-xl bg-subcard border border-zinc-800 text-zinc-400 hover:text-green-400 hover:border-green-500/40 transition-colors"
+          >
+            {theme === 'light' ? <MoonIcon /> : <SunIcon />}
+          </button>
 
           <button
             type="button"

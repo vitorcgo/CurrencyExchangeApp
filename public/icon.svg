@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Currency Exchange">
+  <rect width="512" height="512" fill="#050505"/>
+  <circle cx="256" cy="256" r="150" fill="#121212" stroke="#22c55e" stroke-width="22"/>
+  <path d="M256 158v196M300 196c-16-18-40-24-62-16-28 10-40 42-24 64 14 20 44 20 64 32 24 14 18 52-8 60-22 8-44 0-58-16" fill="none" stroke="#22c55e" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

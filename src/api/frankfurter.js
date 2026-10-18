@@ -1,5 +1,7 @@
 // Cliente da Frankfurter API (https://frankfurter.dev)
 // Fonte das taxas: Banco Central Europeu (BCE), publicadas em dias úteis
+import { isISODate } from '../utils/validation.js'
+
 const BASE_URL = 'https://api.frankfurter.dev/v1'
 
 async function fetchJson(url, signal) {
@@ -38,7 +40,12 @@ export function getTimeSeries({ base, symbols, start, end, signal }) {
   return fetchJson(`${BASE_URL}/${start}..${end}?${params}`, signal)
 }
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
+// GET /latest?base=USD
+// Resposta: { amount: 1, base: "USD", date: "2026-10-16", rates: { BRL: 5.33, ... } }
+export function getLatestRates({ base, signal }) {
+  const params = new URLSearchParams({ base })
+  return fetchJson(`${BASE_URL}/latest?${params}`, signal)
+}
 
 // Converte o objeto `rates` da API em um array ordenado de pontos { date, rate }
 export function toPoints(rates, symbol) {
@@ -48,6 +55,6 @@ export function toPoints(rates, symbol) {
       date,
       rate: value && typeof value === 'object' ? value[symbol] : value,
     }))
-    .filter((point) => ISO_DATE.test(point.date) && Number.isFinite(point.rate))
+    .filter((point) => isISODate(point.date) && Number.isFinite(point.rate))
     .sort((a, b) => a.date.localeCompare(b.date))
 }

@@ -2,6 +2,16 @@
 
 :root {
   color-scheme: dark;
+  --page-bg: #050505;
+  --page-text: #e5e5e5;
+  --page-grid: rgba(255, 255, 255, 0.018);
+  --scrollbar-track: #0a0a0a;
+  --scrollbar-thumb: #2e2e2e;
+  --scrollbar-thumb-hover: #404040;
+  --selection-bg: rgba(34, 197, 94, 0.25);
+  --selection-text: #bbf7d0;
+  --option-bg: #121212;
+  --option-text: #e5e5e5;
 }
 
 /* ===== Design tokens do "Pro Terminal" (Tailwind CSS v4) ===== */
@@ -14,21 +24,59 @@
   --color-subcard: #1a1a1a;
 }
 
+/* ===== Tema claro =====
+   A escala zinc é invertida para preservar a hierarquia de superfícies.
+   O verde de texto fica mais escuro; o verde de preenchimento continua vivo. */
+html[data-theme='light'] {
+  color-scheme: light;
+
+  --color-white: #09090b;
+  --color-panel: #f4f4f5;
+  --color-card: #ffffff;
+  --color-subcard: #f4f4f5;
+
+  --color-zinc-100: #09090b;
+  --color-zinc-200: #18181b;
+  --color-zinc-300: #27272a;
+  --color-zinc-400: #3f3f46;
+  --color-zinc-500: #52525b;
+  --color-zinc-600: #71717a;
+  --color-zinc-700: #d4d4d8;
+  --color-zinc-800: #e4e4e7;
+  --color-zinc-900: #f4f4f5;
+  --color-zinc-950: #fafafa;
+
+  --color-green-300: #15803d;
+  --color-green-400: #166534;
+  --color-green-950: #dcfce7;
+
+  --page-bg: #f4f4f5;
+  --page-text: #18181b;
+  --page-grid: rgba(5, 5, 5, 0.035);
+  --scrollbar-track: #e4e4e7;
+  --scrollbar-thumb: #a1a1aa;
+  --scrollbar-thumb-hover: #71717a;
+  --selection-bg: rgba(34, 197, 94, 0.22);
+  --selection-text: #052e16;
+  --option-bg: #ffffff;
+  --option-text: #18181b;
+}
+
 /* ===== Estilos globais ===== */
 body {
-  background-color: #050505;
-  color: #e5e5e5;
+  background-color: var(--page-bg);
+  color: var(--page-text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    linear-gradient(to right, var(--page-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--page-grid) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
 ::selection {
-  background: rgba(34, 197, 94, 0.25);
-  color: #bbf7d0;
+  background: var(--selection-bg);
+  color: var(--selection-text);
 }
 
 ::-webkit-scrollbar {
@@ -36,18 +84,18 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: #2e2e2e;
+  background: var(--scrollbar-thumb);
   border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: var(--scrollbar-thumb-hover);
 }
 
-/* Dropdowns nativos em tema escuro */
+/* Dropdowns nativos acompanham o tema */
 select option {
-  background-color: #121212;
-  color: #e5e5e5;
+  background-color: var(--option-bg);
+  color: var(--option-text);
 }

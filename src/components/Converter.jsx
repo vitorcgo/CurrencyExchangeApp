@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import TimeAgo from './TimeAgo.jsx'
 import {
   FALLBACK_CURRENCIES,
   currencyName,
@@ -6,6 +7,7 @@ import {
   formatDate,
   formatNumber,
   formatRate,
+  parseAmount,
 } from '../utils/format.js'
 import { sanitizeAmountInput } from '../utils/validation.js'
 
@@ -43,6 +45,17 @@ function BookmarkIcon({ filled }) {
   )
 }
 
+function ShareIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 export default function Converter({
   amount,
   onAmountChange,
@@ -55,6 +68,9 @@ export default function Converter({
   rate,
   rateLoading,
   latestDate,
+  updatedAt,
+  autoRefresh,
+  onAutoRefreshChange,
   isFrozen,
   frozenSecondsLeft,
   onToggleFreeze,
@@ -72,6 +88,64 @@ export default function Converter({
     return [...missing.map((code) => ({ code, name: code })), ...list]
   }, [currencies, from, to])
 
+  const [amountError, setAmountError] = useState('')
+  const [copyState, setCopyState] = useState('idle')
+
+  // Um novo valor válido limpa a mensagem de erro
+  useEffect(() => {
+    setAmountError('')
+  }, [amount])
+
+  // O aviso de cópia some sozinho
+  useEffect(() => {
+    if (copyState === 'idle') return undefined
+    const id = setTimeout(() => setCopyState('idle'), 2200)
+    return () => clearTimeout(id)
+  }, [copyState])
+
+  function handleAmountChange(event) {
+    const raw = event.target.value
+    const next = sanitizeAmountInput(raw)
+
+    if (next === null || (next === '' && raw.trim() !== '')) {
+      setAmountError('Valor inválido. Use até 12 dígitos e no máximo 6 casas decimais.')
+      return
+    }
+
+    setAmountError('')
+    onAmountChange(next)
+  }
+
+  // Ao sair do campo, aplica separador de milhar sem perder os centavos
+  function handleAmountBlur() {
+    if (amountError || !amount) return
+    const parsed = parseAmount(amount)
+    if (!parsed) return
+    onAmountChange(
+      new Intl.NumberFormat('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 6,
+      }).format(parsed),
+    )
+  }
+
+  async function handleCopyLink() {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard indisponível')
+      await navigator.clipboard.writeText(window.location.href)
+      setCopyState('copied')
+    } catch {
+      setCopyState('error')
+    }
+  }
+
+  const copyLabel =
+    copyState === 'copied'
+      ? 'Link copiado'
+      : copyState === 'error'
+        ? 'Falha ao copiar'
+        : 'Copiar link'
+
   return (
     <section
       className="rounded-3xl bg-card border border-zinc-800/90 p-5 sm:p-7"
@@ -84,6 +158,16 @@ export default function Converter({
           </svg>
           Conversor de moedas
         </h3>
+
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          aria-live="polite"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-subcard border border-zinc-800 text-[11px] font-bold text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors"
+        >
+          <ShareIcon />
+          {copyLabel}
+        </button>
       </div>
 
       <div className="space-y-5">
@@ -95,7 +179,13 @@ export default function Converter({
           >
             Valor a converter
           </label>
-          <div className="relative rounded-2xl border border-zinc-700/80 bg-subcard hover:border-green-500/50 transition-colors focus-within:ring-2 focus-within:ring-green-500/40 focus-within:border-green-400">
+          <div
+            className={`relative rounded-2xl border bg-subcard transition-colors focus-within:ring-2 focus-within:ring-green-500/40 focus-within:border-green-400 ${
+              amountError
+                ? 'border-zinc-400'
+                : 'border-zinc-700/80 hover:border-green-500/50'
+            }`}
+          >
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 font-mono font-bold text-lg select-none">
               {currencyPrefix(from)}
             </div>
@@ -104,24 +194,37 @@ export default function Converter({
               type="text"
               inputMode="decimal"
               value={amount}
-              onChange={(event) => {
-                const next = sanitizeAmountInput(event.target.value)
-                if (next !== null) onAmountChange(next)
-              }}
+              onChange={handleAmountChange}
+              onBlur={handleAmountBlur}
               placeholder="0,00"
-              maxLength={16}
+              maxLength={24}
               autoComplete="off"
               spellCheck={false}
+              aria-invalid={Boolean(amountError)}
+              aria-describedby="amount-help"
               className="w-full bg-transparent text-white text-xl sm:text-2xl font-bold py-3.5 pl-16 pr-4 border-none focus:ring-0 focus:outline-none font-mono placeholder:text-zinc-600"
             />
           </div>
+          <p
+            id="amount-help"
+            role={amountError ? 'alert' : undefined}
+            className={`mt-1.5 min-h-[16px] text-[11px] leading-relaxed ${
+              amountError ? 'text-zinc-100' : 'text-zinc-500'
+            }`}
+          >
+            {amountError ||
+              'Use vírgula ou ponto para os centavos. O valor é formatado ao sair do campo.'}
+          </p>
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-2.5">
             <span className="text-[10px] text-zinc-400 uppercase font-semibold">Atalhos:</span>
             {PRESETS.map((preset) => (
               <button
                 key={preset}
                 type="button"
-                onClick={() => onAmountChange(String(preset))}
+                onClick={() => {
+                  setAmountError('')
+                  onAmountChange(String(preset))
+                }}
                 className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-subcard border border-zinc-800 hover:border-green-500/40 text-xs font-mono text-zinc-300 hover:text-white transition"
               >
                 {currencyPrefix(from)}
@@ -251,26 +354,54 @@ export default function Converter({
           </div>
         )}
 
-        {/* Taxa atual e data da cotação */}
-        <div className="p-3 rounded-2xl bg-panel border border-zinc-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 text-xs">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-zinc-400 font-semibold tracking-wider uppercase text-[10px]">
-              Taxa atual
+        {/* Taxa atual, data e frequência de atualização */}
+        <div className="p-3 rounded-2xl bg-panel border border-zinc-800/80 text-xs space-y-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-zinc-400 font-semibold tracking-wider uppercase text-[10px]">
+                Taxa atual
+              </span>
+              <span className="inline-flex items-center font-bold font-mono px-2.5 py-1 rounded-lg bg-subcard border border-green-500/20 text-green-300">
+                1 {from} = {formatRate(rate)} {to}
+              </span>
+              {from === to && (
+                <span className="text-[10px] font-mono text-zinc-500">paridade 1:1</span>
+              )}
+            </div>
+            <span className="text-zinc-400 font-medium font-mono text-[11px] whitespace-nowrap">
+              {latestDate
+                ? `Cotação de ${formatDate(latestDate)}`
+                : rateLoading
+                  ? 'Carregando...'
+                  : '-'}
             </span>
-            <span className="inline-flex items-center font-bold font-mono px-2.5 py-1 rounded-lg bg-subcard border border-green-500/20 text-green-300">
-              1 {from} = {formatRate(rate)} {to}
-            </span>
-            {from === to && (
-              <span className="text-[10px] font-mono text-zinc-500">paridade 1:1</span>
-            )}
           </div>
-          <span className="text-zinc-400 font-medium font-mono text-[11px] whitespace-nowrap">
-            {latestDate
-              ? `Cotação de ${formatDate(latestDate)}`
-              : rateLoading
-                ? 'Carregando...'
-                : '-'}
-          </span>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-zinc-800/70">
+            <span className="text-zinc-500 font-mono text-[10px]">
+              {updatedAt ? (
+                <TimeAgo timestamp={updatedAt} />
+              ) : (
+                'sem atualização recente'
+              )}
+            </span>
+            <label className="flex items-center gap-1.5">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400">
+                Auto
+              </span>
+              <select
+                value={autoRefresh}
+                onChange={(event) => onAutoRefreshChange(Number(event.target.value))}
+                aria-label="Frequência de atualização automática"
+                className="rounded-lg bg-subcard border border-zinc-700/80 text-[11px] font-semibold text-zinc-300 px-2 py-1 focus:outline-none focus:border-green-500/50 focus:ring-2 focus:ring-green-500/30 cursor-pointer"
+              >
+                <option value={0}>Manual</option>
+                <option value={60}>1 min</option>
+                <option value={300}>5 min</option>
+                <option value={900}>15 min</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         {/* Ações: salvar par e congelar taxa */}
@@ -283,7 +414,7 @@ export default function Converter({
             className={`flex-1 py-4 px-4 sm:px-6 rounded-2xl border font-extrabold text-xs sm:text-sm uppercase tracking-wide sm:tracking-wider whitespace-nowrap flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               isFrozen
                 ? 'bg-zinc-800 border-green-500/40 text-green-300 hover:bg-zinc-700'
-                : 'bg-green-500 border-green-500 text-zinc-950 hover:bg-green-400'
+                : 'bg-green-500 border-green-500 text-black hover:bg-[#4ade80]'
             }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

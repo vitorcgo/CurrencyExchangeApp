@@ -12,6 +12,7 @@ export function useTimeSeries(from, to, timeframe) {
     error: null,
     latency: null,
     latestDate: null,
+    updatedAt: null,
     key: null,
   })
   const [reloadKey, setReloadKey] = useState(0)
@@ -30,19 +31,28 @@ export function useTimeSeries(from, to, timeframe) {
         error: null,
         latency: null,
         latestDate: points[points.length - 1]?.date ?? null,
-        key: `${from}/${to}`,
+        updatedAt: Date.now(),
+        key: `${from}/${to}/${timeframe}`,
       })
       return undefined
     }
 
     const controller = new AbortController()
-    const key = `${from}/${to}`
+    const key = `${from}/${to}/${timeframe}`
     // Par mudou: limpa os pontos para nunca exibir dados antigos
     // junto do título do novo par durante o carregamento
     setState((prev) =>
       prev.key === key
         ? { ...prev, loading: true, error: null }
-        : { points: [], loading: true, error: null, latency: null, latestDate: null, key },
+        : {
+            points: [],
+            loading: true,
+            error: null,
+            latency: null,
+            latestDate: null,
+            updatedAt: null,
+            key,
+          },
     )
 
     async function load() {
@@ -65,6 +75,7 @@ export function useTimeSeries(from, to, timeframe) {
           error: null,
           latency,
           latestDate: points[points.length - 1]?.date ?? null,
+          updatedAt: Date.now(),
           key,
         })
       } catch (error) {
@@ -84,5 +95,17 @@ export function useTimeSeries(from, to, timeframe) {
     return () => controller.abort()
   }, [from, to, timeframe, reloadKey])
 
-  return { ...state, refetch }
+  const expectedKey = from && to ? `${from}/${to}/${timeframe}` : null
+  const stale = expectedKey != null && state.key !== expectedKey
+
+  return {
+    ...state,
+    points: stale ? [] : state.points,
+    loading: stale ? true : state.loading,
+    error: stale ? null : state.error,
+    latency: stale ? null : state.latency,
+    latestDate: stale ? null : state.latestDate,
+    updatedAt: stale ? null : state.updatedAt,
+    refetch,
+  }
 }

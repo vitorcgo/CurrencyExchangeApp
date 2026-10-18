@@ -75,12 +75,14 @@ export function formatDateShort(iso) {
   return `${day}/${month}`
 }
 
-// Aceita "1234.56" e "1.234,56" e devolve 1234.56
+// Aceita "1234.56", "1.234,56" e "1.234" (milhar no padrão pt-BR)
 export function parseAmount(raw) {
   let text = String(raw ?? '').trim()
   if (!text) return 0
   if (text.includes(',')) {
     text = text.replace(/\./g, '').replace(',', '.')
+  } else if (/^\d{1,3}(\.\d{3})+$/.test(text)) {
+    text = text.replace(/\./g, '')
   }
   const parsed = Number(text)
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0

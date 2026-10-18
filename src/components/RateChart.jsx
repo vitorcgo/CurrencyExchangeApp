@@ -8,7 +8,8 @@ import {
   formatRate,
   formatSignedPercent,
 } from '../utils/format.js'
-import { TIMEFRAMES } from '../utils/dates.js'
+import { TIMEFRAMES, todayISO } from '../utils/dates.js'
+import { exportChartAsPng } from '../utils/chartExport.js'
 
 const HEIGHT_DESKTOP = 320
 const HEIGHT_MOBILE = 260
@@ -27,12 +28,23 @@ function formatAxisValue(value) {
   return formatRate(value)
 }
 
+function DownloadIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path d="M12 3v12m0 0l4-4m-4 4l-4-4M5 21h14" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 export default function RateChart({ points, loading, from, to, timeframe, onTimeframeChange }) {
   const containerRef = useRef(null)
   const width = useElementWidth(containerRef)
   const [hoverIndex, setHoverIndex] = useState(null)
   const tooltipRef = useRef(null)
   const [tooltipWidth, setTooltipWidth] = useState(0)
+  const svgRef = useRef(null)
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState('')
 
   // Mede a largura real do balão (o conteúdo varia com a cotação)
   // antes da pintura, para conseguir prendê-lo nas bordas
@@ -153,6 +165,64 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
     setHoverIndex(Math.round(ratio * Math.max(points.length - 1, 0)))
   }
 
+  // Navegação pelo histórico sem mouse. O SVG recebe foco pelo teclado.
+  function handleKeyDown(event) {
+    if (!points.length) return
+    const last = points.length - 1
+
+    if (
+      event.key === 'ArrowLeft' ||
+      event.key === 'ArrowRight' ||
+      event.key === 'Home' ||
+      event.key === 'End' ||
+      event.key === 'Escape'
+    ) {
+      event.preventDefault()
+    }
+
+    if (event.key === 'Escape') {
+      setHoverIndex(null)
+      return
+    }
+    if (event.key === 'Home') {
+      setHoverIndex(0)
+      return
+    }
+    if (event.key === 'End') {
+      setHoverIndex(last)
+      return
+    }
+    if (event.key === 'ArrowLeft') {
+      setHoverIndex((current) => (current == null ? last : Math.max(0, current - 1)))
+      return
+    }
+    if (event.key === 'ArrowRight') {
+      setHoverIndex((current) => (current == null ? 0 : Math.min(last, current + 1)))
+    }
+  }
+
+  async function handleExport() {
+    if (!svgRef.current || exporting) return
+    setExporting(true)
+    setExportError('')
+
+    try {
+      const cardColor = window
+        .getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-card')
+        .trim()
+
+      await exportChartAsPng(svgRef.current, {
+        fileName: `grafico-${from}-${to}-${timeframe}-${todayISO()}.png`,
+        background: cardColor || '#121212',
+      })
+    } catch (error) {
+      setExportError(error.message || 'Não foi possível gerar o PNG.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   const activeIndex = hoverIndex ?? (points.length ? points.length - 1 : null)
   const activePoint = activeIndex != null ? points[activeIndex] : null
   const previousPoint = activeIndex != null && activeIndex > 0 ? points[activeIndex - 1] : null
@@ -187,37 +257,57 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                 </span>
               )}
             </h3>
-            <p className="text-xs text-zinc-400 font-mono mt-0.5 truncate">
+            <p className="text-xs text-zinc-400 font-mono mt-0.5">
               SMA(20): {formatRate(model?.sma20Last)} | SMA(50): {formatRate(model?.sma50Last)}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center bg-subcard border border-zinc-800 rounded-xl p-1 text-xs font-semibold text-zinc-400 font-mono overflow-x-auto max-w-full shrink-0">
-          {TIMEFRAMES.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => onTimeframeChange(item.id)}
-              aria-pressed={timeframe === item.id}
-              className={`shrink-0 px-2.5 py-1 rounded-lg transition-colors border ${
-                timeframe === item.id
-                  ? 'bg-green-500/20 text-green-300 border-green-500/30'
-                  : 'border-transparent hover:text-white'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 shrink-0 max-w-full">
+          <div className="flex flex-wrap sm:flex-nowrap items-center bg-subcard border border-zinc-800 rounded-xl p-1 text-xs font-semibold text-zinc-400 font-mono max-w-full min-w-0">
+            {TIMEFRAMES.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onTimeframeChange(item.id)}
+                aria-pressed={timeframe === item.id}
+                className={`shrink-0 px-2.5 py-1 rounded-lg transition-colors border ${
+                  timeframe === item.id
+                    ? 'bg-green-500/20 text-green-300 border-green-500/30'
+                    : 'border-transparent hover:text-white'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={!geometry || exporting}
+            aria-label="Baixar gráfico em PNG"
+            title="Baixar gráfico em PNG"
+            className="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-subcard border border-zinc-800 text-xs font-bold text-zinc-300 hover:text-white hover:border-green-500/40 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <DownloadIcon />
+            <span className="hidden sm:inline">{exporting ? 'Gerando...' : 'PNG'}</span>
+          </button>
         </div>
       </div>
+
+      {exportError && (
+        <p role="alert" className="text-[11px] text-zinc-200 pt-3">
+          {exportError}
+        </p>
+      )}
 
       {/* Área do gráfico */}
       <div className="pt-4">
         <div ref={containerRef} className="relative w-full" style={{ height }}>
           {!geometry ? (
             <div className="w-full h-full rounded-2xl bg-panel border border-zinc-800/50 flex items-center justify-center">
-              <span className="text-xs font-mono text-zinc-500 animate-pulse">
+              <span className="text-xs font-mono text-zinc-500">
                 {loading ? 'carregando série histórica...' : 'sem dados para exibir'}
               </span>
             </div>
@@ -253,13 +343,23 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
               )}
 
               <svg
+                ref={svgRef}
                 width={width}
                 height={height}
-                className="block select-none"
+                className="block select-none outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-green-500/60"
                 role="img"
+                tabIndex={0}
                 aria-label={`Histórico de ${from} para ${to} no período ${timeframe}`}
+                aria-describedby="chart-keyboard-help"
                 onMouseMove={handlePointerMove}
                 onMouseLeave={() => setHoverIndex(null)}
+                onFocus={() => {
+                  if (points.length) {
+                    setHoverIndex((current) => current ?? points.length - 1)
+                  }
+                }}
+                onBlur={() => setHoverIndex(null)}
+                onKeyDown={handleKeyDown}
               >
                 <defs>
                   <linearGradient id="chart-area-gradient" x1="0" y1="0" x2="0" y2="1">
@@ -278,7 +378,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                         x2={geometry.plotWidth}
                         y1={geometry.yAt(tick)}
                         y2={geometry.yAt(tick)}
-                        stroke="#2a2a2a"
+                        stroke="var(--color-zinc-800)"
                         strokeOpacity="0.6"
                         strokeDasharray="4 6"
                       />
@@ -302,7 +402,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                         x2={geometry.xAt(index)}
                         y1="0"
                         y2={geometry.plotHeight}
-                        stroke="#2a2a2a"
+                        stroke="var(--color-zinc-800)"
                         strokeOpacity="0.35"
                         strokeDasharray="4 6"
                       />
@@ -332,8 +432,8 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                     <path
                       d={geometry.smaPath}
                       fill="none"
-                      stroke="#a1a1aa"
-                      strokeOpacity="0.55"
+                      stroke="var(--color-zinc-400)"
+                      strokeOpacity="0.65"
                       strokeWidth="1.5"
                       strokeDasharray="5 4"
                     />
@@ -366,13 +466,23 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                         cy={geometry.yAt(activePoint.rate)}
                         r="4.5"
                         fill="#22c55e"
-                        stroke="#0a0a0a"
+                        stroke="var(--color-panel)"
                         strokeWidth="2"
                       />
                     </>
                   )}
                 </g>
               </svg>
+
+              <p id="chart-keyboard-help" className="sr-only">
+                Use as setas esquerda e direita para navegar pelos pontos. Home e End vão ao
+                primeiro e ao último ponto. Escape limpa a seleção.
+              </p>
+              <p className="sr-only" aria-live="polite">
+                {activePoint
+                  ? `${formatDate(activePoint.date)}: ${formatRate(activePoint.rate)} ${to}`
+                  : ''}
+              </p>
             </>
           )}
         </div>
