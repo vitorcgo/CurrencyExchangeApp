@@ -161,7 +161,9 @@ export default function RateAlert({ from, to, rate, onApplyPair }) {
               className={`text-[11px] leading-relaxed ${error ? 'text-zinc-100' : 'text-zinc-500'}`}
             >
               {error ||
-                'O alerta é verificado enquanto esta aba estiver aberta. Com a atualização automática ativa, a checagem acontece em segundo plano.'}
+                (otherAlert
+                  ? `O alerta é verificado enquanto esta aba estiver aberta. Criar um novo alerta substitui o alerta salvo para ${otherAlert.from}/${otherAlert.to}.`
+                  : 'O alerta é verificado enquanto esta aba estiver aberta. Com a atualização automática ativa, a checagem acontece em segundo plano.')}
             </p>
 
             <button
