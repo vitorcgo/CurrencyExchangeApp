@@ -1,4 +1,4 @@
-# FrankFrutyh
+# Frankfurter Pro Terminal
 
 SPA em React para conversão e análise de moedas, usando as taxas de referência
 do Banco Central Europeu (BCE) através da Frankfurter API.
