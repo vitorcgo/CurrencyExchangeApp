@@ -1,4 +1,4 @@
-name: Implantar no GitHub Pages
+name: Testes, build e deploy
 
 on:
   push:
@@ -37,17 +37,20 @@ jobs:
         run: npm run build
 
       - name: Configurar Pages
+        if: vars.ENABLE_PAGES == 'true'
         uses: actions/configure-pages@v5
         with:
           enablement: true
 
       - name: Enviar artefato
+        if: vars.ENABLE_PAGES == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
     needs: build
+    if: vars.ENABLE_PAGES == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

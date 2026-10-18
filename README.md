@@ -183,15 +183,19 @@ estar ativa para que novas taxas sejam consultadas.
 
 ## Deploy no GitHub Pages
 
-O workflow `.github/workflows/deploy.yml` roda os testes, gera o build e publica
-a pasta `dist` no GitHub Pages a cada push na branch `main`.
+O workflow `.github/workflows/deploy.yml` roda os testes e gera o build a cada
+push na branch `main`. A publicação no GitHub Pages acontece apenas quando a
+variável de repositório `ENABLE_PAGES` estiver definida como `true` em Settings
+> Secrets and variables > Actions > Variables. Sem essa variável, o workflow
+apenas testa e gera o build, sem falhar quando o Pages não está disponível.
 
 Passos:
 
 1. Envie o repositório para o GitHub.
-2. Em Settings > Pages, escolha a origem "GitHub Actions" caso o workflow ainda
+2. Crie a variável de repositório `ENABLE_PAGES` com o valor `true`.
+3. Em Settings > Pages, escolha a origem "GitHub Actions" caso o workflow ainda
    não tenha habilitado o Pages automaticamente.
-3. Faça um push na branch `main` ou execute o workflow manualmente.
+4. Faça um push na branch `main` ou execute o workflow manualmente.
 
 O `vite.config.js` detecta o nome do repositório em `GITHUB_REPOSITORY` e ajusta
 o caminho base para `https://SEU-USUARIO.github.io/NOME-DO-REPOSITORIO/`.
