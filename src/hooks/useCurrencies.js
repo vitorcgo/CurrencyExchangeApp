@@ -17,6 +17,7 @@ export function useCurrencies() {
     async function load() {
       try {
         const { data } = await getCurrencies(controller.signal)
+        if (controller.signal.aborted) return
         const entries =
           data && typeof data === 'object' && !Array.isArray(data)
             ? Object.entries(data)
@@ -31,7 +32,7 @@ export function useCurrencies() {
         }
         setState({ currencies, loading: false, error: null })
       } catch (error) {
-        if (error.name === 'AbortError') return
+        if (controller.signal.aborted || error.name === 'AbortError') return
         setState({ currencies: null, loading: false, error: error.message })
       }
     }

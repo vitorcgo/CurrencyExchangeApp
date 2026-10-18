@@ -29,6 +29,7 @@ export function useLatestRates(base, refreshKey = 0) {
     async function load() {
       try {
         const { data } = await getLatestRates({ base, signal: controller.signal })
+        if (controller.signal.aborted) return
         const entries =
           data?.rates && typeof data.rates === 'object' && !Array.isArray(data.rates)
             ? Object.entries(data.rates)
@@ -57,7 +58,7 @@ export function useLatestRates(base, refreshKey = 0) {
           error: null,
         })
       } catch (error) {
-        if (error.name === 'AbortError') return
+        if (controller.signal.aborted || error.name === 'AbortError') return
         setState({ rates: [], date: null, base, loading: false, error: error.message })
       }
     }

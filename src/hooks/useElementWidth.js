@@ -11,6 +11,12 @@ export function useElementWidth(ref) {
 
     setWidth(element.getBoundingClientRect().width)
 
+    if (typeof ResizeObserver === 'undefined') {
+      const onResize = () => setWidth(element.getBoundingClientRect().width)
+      window.addEventListener('resize', onResize)
+      return () => window.removeEventListener('resize', onResize)
+    }
+
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         setWidth(entry.contentRect.width)

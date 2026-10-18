@@ -65,6 +65,7 @@ export function useTimeSeries(from, to, timeframe) {
           end,
           signal: controller.signal,
         })
+        if (controller.signal.aborted) return
         const points = toPoints(data?.rates, to)
         if (!points.length) {
           throw new Error('Nenhuma cotação disponível para o período.')
@@ -79,7 +80,7 @@ export function useTimeSeries(from, to, timeframe) {
           key,
         })
       } catch (error) {
-        if (error.name === 'AbortError') return
+        if (controller.signal.aborted || error.name === 'AbortError') return
         setState((prev) => ({
           ...prev,
           points: [],

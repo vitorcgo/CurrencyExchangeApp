@@ -64,9 +64,10 @@ export function useTicker() {
           end: todayISO(),
           signal: controller.signal,
         })
+        if (controller.signal.aborted) return
         setState({ items: buildItems(data?.rates), loading: false, error: null })
       } catch (error) {
-        if (error.name === 'AbortError') return
+        if (controller.signal.aborted || error.name === 'AbortError') return
         setState({ items: [], loading: false, error: error.message })
       }
     }
