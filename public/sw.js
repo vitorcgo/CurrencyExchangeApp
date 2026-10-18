@@ -34,7 +34,8 @@ async function precache() {
   const cache = await caches.open(CACHE_NAME)
   const generated = await loadPrecacheList()
   const files = [...new Set([...APP_SHELL, ...generated])]
-  await cache.addAll(files)
+  // Um arquivo com falha não impede a instalação do service worker
+  await Promise.allSettled(files.map((file) => cache.add(file)))
 }
 
 self.addEventListener('install', (event) => {
