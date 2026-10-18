@@ -16,7 +16,7 @@ consumo de API, gráficos, filtros, ordenação, exportação CSV e publicação
 - Ticker no cabeçalho com a variação recente (USD/BRL, EUR/USD, GBP/USD, AUD/USD)
 - Gráfico histórico em SVG com tooltip, médias móveis SMA(20) e SMA(50) e
   períodos de análise (7d, 15d, 30d, 3m, 6m, 1a e Max)
-- Navegação pelo gráfico com teclado: setas, Home, End e Escape
+- Navegação pelos gráficos com teclado: setas, Home, End e Escape
 - Exportação do gráfico em PNG com o dobro da resolução da tela
 - Painel de estatísticas: tendência, volatilidade diária, mínimo e última cotação
 - Tabela de cotações com busca por data, filtro de altas/baixas, ordenação

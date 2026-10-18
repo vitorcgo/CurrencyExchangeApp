@@ -126,6 +126,7 @@ export default function ComparisonChart({
     }
 
     measure()
+    if (typeof ResizeObserver === 'undefined') return undefined
     const observer = new ResizeObserver(measure)
     observer.observe(element)
     return () => observer.disconnect()
@@ -205,6 +206,42 @@ export default function ComparisonChart({
     setHoverIndex(Math.round(ratio * Math.max(aligned.length - 1, 0)))
   }
 
+  // Navegação da comparação pelo teclado, igual à do gráfico principal
+  function handleKeyDown(event) {
+    if (!aligned.length) return
+    const last = aligned.length - 1
+
+    if (
+      event.key === 'ArrowLeft' ||
+      event.key === 'ArrowRight' ||
+      event.key === 'Home' ||
+      event.key === 'End' ||
+      event.key === 'Escape'
+    ) {
+      event.preventDefault()
+    }
+
+    if (event.key === 'Escape') {
+      setHoverIndex(null)
+      return
+    }
+    if (event.key === 'Home') {
+      setHoverIndex(0)
+      return
+    }
+    if (event.key === 'End') {
+      setHoverIndex(last)
+      return
+    }
+    if (event.key === 'ArrowLeft') {
+      setHoverIndex((current) => (current == null ? last : Math.max(0, current - 1)))
+      return
+    }
+    if (event.key === 'ArrowRight') {
+      setHoverIndex((current) => (current == null ? 0 : Math.min(last, current + 1)))
+    }
+  }
+
   const compareLabel =
     compareOptions.find((item) => item.code === compareCode)?.name ?? compareCode
   const unavailable = !loading && !compare.loading && aligned.length < 2
@@ -256,16 +293,27 @@ export default function ComparisonChart({
       <div className="pt-3">
         <div ref={containerRef} className="relative w-full" style={{ height }}>
           {!geometry ? (
-            <div className="w-full h-full rounded-2xl bg-panel border border-zinc-800/50 flex items-center justify-center px-4 text-center">
-              <span className="text-xs font-mono text-zinc-500">
-                {compare.error
-                  ? compare.error
-                  : loading || compare.loading
+            <div className="w-full h-full rounded-2xl bg-panel border border-zinc-800/50 flex flex-col items-center justify-center gap-2 px-4 text-center">
+              {compare.error ? (
+                <>
+                  <span className="text-xs font-mono text-zinc-500">{compare.error}</span>
+                  <button
+                    type="button"
+                    onClick={refetchCompare}
+                    className="px-2.5 py-1 rounded-lg bg-subcard border border-zinc-700 text-[11px] font-bold text-zinc-300 hover:text-white transition-colors"
+                  >
+                    Tentar novamente
+                  </button>
+                </>
+              ) : (
+                <span className="text-xs font-mono text-zinc-500">
+                  {loading || compare.loading
                     ? 'carregando comparação...'
                     : unavailable
                       ? 'sem datas em comum no período'
                       : 'sem dados para exibir'}
-              </span>
+                </span>
+              )}
             </div>
           ) : (
             <>
@@ -290,11 +338,21 @@ export default function ComparisonChart({
               <svg
                 width={width}
                 height={height}
-                className="block select-none"
+                className="block select-none outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-green-500/60"
                 role="img"
+                tabIndex={0}
                 aria-label={`Comparação normalizada entre ${from} para ${to} e ${from} para ${compareCode}`}
-                onMouseMove={handlePointerMove}
-                onMouseLeave={() => setHoverIndex(null)}
+                aria-describedby="comparison-keyboard-help"
+                onPointerMove={handlePointerMove}
+                onPointerDown={handlePointerMove}
+                onPointerLeave={() => setHoverIndex(null)}
+                onFocus={() => {
+                  if (aligned.length) {
+                    setHoverIndex((current) => current ?? aligned.length - 1)
+                  }
+                }}
+                onBlur={() => setHoverIndex(null)}
+                onKeyDown={handleKeyDown}
               >
                 <g transform={`translate(${padLeft}, ${PAD_TOP})`}>
                   {geometry.yTicks.map((tick, index) => (
@@ -401,6 +459,16 @@ export default function ComparisonChart({
                   )}
                 </g>
               </svg>
+
+              <p id="comparison-keyboard-help" className="sr-only">
+                Use as setas esquerda e direita para navegar pelos pontos. Home e End vão ao
+                primeiro e ao último ponto. Escape limpa a seleção.
+              </p>
+              <p className="sr-only" aria-live="polite">
+                {activePoint
+                  ? `${formatDate(activePoint.date)}: ${from}/${to} ${formatNumber(activePoint.base, 1)} e ${from}/${compareCode} ${formatNumber(activePoint.compare, 1)}`
+                  : ''}
+              </p>
             </>
           )}
         </div>

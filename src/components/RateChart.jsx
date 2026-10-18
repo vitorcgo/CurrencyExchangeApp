@@ -40,6 +40,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
   const containerRef = useRef(null)
   const width = useElementWidth(containerRef)
   const [hoverIndex, setHoverIndex] = useState(null)
+  const [tooltipHidden, setTooltipHidden] = useState(false)
   const tooltipRef = useRef(null)
   const [tooltipWidth, setTooltipWidth] = useState(0)
   const svgRef = useRef(null)
@@ -60,6 +61,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
     }
 
     measure()
+    if (typeof ResizeObserver === 'undefined') return undefined
     const observer = new ResizeObserver(measure)
     observer.observe(element)
     return () => observer.disconnect()
@@ -69,6 +71,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
   // senão o índice antigo pode apontar para fora da nova lista
   useEffect(() => {
     setHoverIndex(null)
+    setTooltipHidden(false)
   }, [points])
 
   // Ajustes de responsividade a partir da largura medida
@@ -92,6 +95,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
       min,
       max,
       sma20,
+      sma50,
       sma20Last: [...sma20].reverse().find((value) => value != null) ?? null,
       sma50Last: [...sma50].reverse().find((value) => value != null) ?? null,
     }
@@ -141,6 +145,7 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
       ? `${linePath}L${xAt(points.length - 1).toFixed(2)},${plotHeight}L${xAt(0).toFixed(2)},${plotHeight}Z`
       : ''
     const smaPath = model.sma20 ? toPath(model.sma20) : ''
+    const sma50Path = model.sma50 ? toPath(model.sma50) : ''
 
     const yTicks = Array.from({ length: 5 }, (_, index) => model.max - (index / 4) * span)
 
@@ -154,11 +159,23 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
       ),
     ]
 
-    return { plotWidth, plotHeight, xAt, yAt, linePath, areaPath, smaPath, yTicks, tickIndexes }
+    return {
+      plotWidth,
+      plotHeight,
+      xAt,
+      yAt,
+      linePath,
+      areaPath,
+      smaPath,
+      sma50Path,
+      yTicks,
+      tickIndexes,
+    }
   }, [model, points, width, padLeft, height])
 
   function handlePointerMove(event) {
     if (!geometry) return
+    setTooltipHidden(false)
     const rect = event.currentTarget.getBoundingClientRect()
     const x = event.clientX - rect.left - padLeft
     const ratio = Math.min(Math.max(x / geometry.plotWidth, 0), 1)
@@ -182,8 +199,10 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
 
     if (event.key === 'Escape') {
       setHoverIndex(null)
+      setTooltipHidden(true)
       return
     }
+    setTooltipHidden(false)
     if (event.key === 'Home') {
       setHoverIndex(0)
       return
@@ -223,7 +242,9 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
     }
   }
 
-  const activeIndex = hoverIndex ?? (points.length ? points.length - 1 : null)
+  const activeIndex = tooltipHidden
+    ? null
+    : hoverIndex ?? (points.length ? points.length - 1 : null)
   const activePoint = activeIndex != null ? points[activeIndex] : null
   const previousPoint = activeIndex != null && activeIndex > 0 ? points[activeIndex - 1] : null
   const activeVariation =
@@ -257,8 +278,15 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                 </span>
               )}
             </h3>
-            <p className="text-xs text-zinc-400 font-mono mt-0.5">
-              SMA(20): {formatRate(model?.sma20Last)} | SMA(50): {formatRate(model?.sma50Last)}
+            <p className="text-xs text-zinc-400 font-mono mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              <span className="inline-flex items-center gap-1">
+                <span aria-hidden="true" className="w-2 h-0.5 rounded-full bg-zinc-400" />
+                SMA(20): {formatRate(model?.sma20Last)}
+              </span>
+              <span className="inline-flex items-center gap-1 text-zinc-500">
+                <span aria-hidden="true" className="w-2 h-0.5 rounded-full bg-zinc-500" />
+                SMA(50): {formatRate(model?.sma50Last)}
+              </span>
             </p>
           </div>
         </div>
@@ -354,11 +382,15 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                 onMouseMove={handlePointerMove}
                 onMouseLeave={() => setHoverIndex(null)}
                 onFocus={() => {
+                  setTooltipHidden(false)
                   if (points.length) {
                     setHoverIndex((current) => current ?? points.length - 1)
                   }
                 }}
-                onBlur={() => setHoverIndex(null)}
+                onBlur={() => {
+                  setHoverIndex(null)
+                  setTooltipHidden(false)
+                }}
                 onKeyDown={handleKeyDown}
               >
                 <defs>
@@ -436,6 +468,18 @@ export default function RateChart({ points, loading, from, to, timeframe, onTime
                       strokeOpacity="0.65"
                       strokeWidth="1.5"
                       strokeDasharray="5 4"
+                    />
+                  )}
+
+                  {/* Média móvel de 50 períodos */}
+                  {geometry.sma50Path && (
+                    <path
+                      d={geometry.sma50Path}
+                      fill="none"
+                      stroke="var(--color-zinc-500)"
+                      strokeOpacity="0.8"
+                      strokeWidth="1.5"
+                      strokeDasharray="2 4"
                     />
                   )}
 
