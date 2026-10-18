@@ -25,6 +25,17 @@ describe('readUrlState', () => {
   it('trata valor vazio como ausente', () => {
     expect(readUrlState('?amount=').amount).toBeNull()
   })
+
+  it('ignora valor zerado ou negativo', () => {
+    expect(readUrlState('?amount=0').amount).toBeNull()
+    expect(readUrlState('?amount=0,00').amount).toBeNull()
+    expect(readUrlState('?amount=-5').amount).toBeNull()
+    expect(readUrlState('?amount=abc5').amount).toBeNull()
+  })
+
+  it('mantém valores positivos bem pequenos', () => {
+    expect(readUrlState('?amount=0,000001').amount).toBe('0,000001')
+  })
 })
 
 describe('buildSearch', () => {

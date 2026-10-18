@@ -4,27 +4,60 @@ import { isISODate } from '../utils/validation.js'
 
 const BASE_URL = 'https://api.frankfurter.dev/v1'
 
+// Tempo máximo de espera por resposta da API
+const REQUEST_TIMEOUT_MS = 12000
+
+function timeoutError() {
+  const error = new Error('A Frankfurter API demorou para responder. Tente novamente.')
+  error.name = 'TimeoutError'
+  return error
+}
+
 async function fetchJson(url, signal) {
   const started = performance.now()
-  let response
-  try {
-    response = await fetch(url, { signal })
-  } catch (error) {
-    if (error.name === 'AbortError') throw error
-    throw new Error('Não foi possível conectar à Frankfurter API')
-  }
-  if (!response.ok) {
-    throw new Error(`Frankfurter API respondeu com erro ${response.status}`)
+  const controller = new AbortController()
+  let timedOut = false
+
+  const timer = setTimeout(() => {
+    timedOut = true
+    controller.abort(timeoutError())
+  }, REQUEST_TIMEOUT_MS)
+
+  function forwardAbort() {
+    controller.abort(signal?.reason)
   }
 
-  let data
-  try {
-    data = await response.json()
-  } catch (error) {
-    if (error.name === 'AbortError') throw error
-    throw new Error('Frankfurter API retornou uma resposta inválida')
+  if (signal) {
+    if (signal.aborted) forwardAbort()
+    else signal.addEventListener('abort', forwardAbort, { once: true })
   }
-  return { data, latency: Math.round(performance.now() - started) }
+
+  try {
+    let response
+    try {
+      response = await fetch(url, { signal: controller.signal })
+    } catch (error) {
+      if (timedOut) throw timeoutError()
+      if (error.name === 'AbortError') throw error
+      throw new Error('Não foi possível conectar à Frankfurter API')
+    }
+
+    if (!response.ok) {
+      throw new Error(`Frankfurter API respondeu com erro ${response.status}`)
+    }
+
+    try {
+      const data = await response.json()
+      return { data, latency: Math.round(performance.now() - started) }
+    } catch (error) {
+      if (timedOut) throw timeoutError()
+      if (error.name === 'AbortError') throw error
+      throw new Error('Frankfurter API retornou uma resposta inválida')
+    }
+  } finally {
+    clearTimeout(timer)
+    if (signal) signal.removeEventListener('abort', forwardAbort)
+  }
 }
 
 // GET /currencies

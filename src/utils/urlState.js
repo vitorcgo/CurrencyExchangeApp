@@ -20,9 +20,9 @@ export function readUrlState(search = window.location.search) {
   const to = isCurrencyCode(rawTo) ? normalizeCurrencyCode(rawTo, null) : null
 
   let amount = null
-  if (rawAmount != null) {
+  if (rawAmount != null && /^[\d.,]+$/.test(rawAmount.trim())) {
     const clean = sanitizeAmountInput(rawAmount)
-    amount = clean === '' ? null : clean
+    if (clean && parseAmount(clean) > 0) amount = clean
   }
 
   const period = TIMEFRAMES.some((item) => item.id === rawPeriod) ? rawPeriod : null
