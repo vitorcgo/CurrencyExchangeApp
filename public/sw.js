@@ -140,3 +140,19 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(cacheFirst(request))
 })
+
+// Ao clicar na notificação, foca a aba aberta ou abre o app
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  const target = new URL('./', self.registration.scope).href
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clients) => {
+        const client = clients.find((item) => 'focus' in item)
+        if (client) return client.focus()
+        return self.clients.openWindow(target)
+      }),
+  )
+})
